@@ -1,9 +1,10 @@
 'use client' // si usas App Router
 
+import api from '@/lib/axios'
 import { useEffect, useState } from 'react'
 import { io } from 'socket.io-client'
 
-const socket = io('http://localhost:3000') // evitar reconexión múltiple
+const socket = io('http://localhost:3003') // evitar reconexión múltiple
 
 export default function Home() {
   const [mensaje, setMensaje] = useState('')
@@ -37,6 +38,15 @@ export default function Home() {
       setMensaje('')
     }
   }
+
+  const getUsers = async () => {
+    const res = await api.get('/api/users')
+    return res.data
+  }
+
+  useEffect(() => {
+    getUsers()
+  }, [])
 
   return (
     <div style={{ padding: 32, maxWidth: 500, margin: '0 auto' }}>
