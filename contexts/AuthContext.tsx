@@ -2,6 +2,7 @@
 // hooks/useAuth.ts
 import { createContext, useContext, useState, useEffect, Dispatch, SetStateAction } from "react"
 import api from "@/lib/axios"
+import { usePathname, useRouter } from "next/navigation";
 
 type User = {
     id: number;
@@ -18,19 +19,27 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
+  const router = useRouter()
+const pathname = usePathname()
 
     useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const res = await api.get("/api/me") // ruta protegida que devuelve el usuario
-                setUser(res.data)
-            } catch {
-                setUser(null)
-            }
-        }
+    const fetchUser = async () => {
+        try {
+            const res = await api.get("/api/auth/me")
+            setUser(res.data.user)
 
-        fetchUser()
-    }, [])
+            // 👇 Si el usuario está en login y ya tiene token válido, redirigimos
+            if (pathname === "/login" || pathname === "/" || pathname === "/register") {
+                router.replace("/chats") // Esto forza navegación real => se ejecuta middleware
+            }
+
+        } catch {
+            setUser(null)
+        }
+    }
+
+    fetchUser()
+}, [pathname, router])
 
     return (
         <AuthContext.Provider value={{ user, setUser }}>

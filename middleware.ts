@@ -19,9 +19,10 @@ export async function middleware(req: NextRequest) {
 
     const token = req.cookies.get('accessToken')?.value
     const isAuthPage = path.startsWith('/login') || path.startsWith('/register')
+    const isRoot = path === '/'
 
     if (!token) {
-        if (!isAuthPage) {
+        if (!isAuthPage && !isRoot) {
             return NextResponse.redirect(new URL('/login', req.url))
         }
         return NextResponse.next()
@@ -30,8 +31,8 @@ export async function middleware(req: NextRequest) {
     try {
         await jwtVerify(token, secret)
         // Token válido
-        if (isAuthPage) {
-            return NextResponse.redirect(new URL('/', req.url))
+        if (isAuthPage || isRoot) {
+            return NextResponse.redirect(new URL('/chats', req.url))
         }
         return NextResponse.next()
     } catch (e) {
