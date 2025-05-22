@@ -1,28 +1,60 @@
-export interface ConversationFull {
-    id: number
-    title: string | null
-    isGroup: boolean
-    createdAt: string // o Date si lo parseás
-    creatorId: number
-    participants: {
-        id: number
-        userId: number
-        conversationId: number
-        joinedAt: string // o Date
-        deletedAt: string | null // o Date | null
-        user: {
-        id: number
-        firstName: string
-        lastName: string
-        }
-    }[]
-    messages: {
-        id: number
-        content: string
-        senderId: number
-        conversationId: number
-        createdAt: string // o Date
-        updatedAt: string // o Date
-        deleted: boolean
-    }[]
+export interface ConversationFull extends Conversation {
+    participants: ParticipantFull[]
+    messages: MessageFull[]
+    unseenCount: number
 }
+
+export interface User {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    createdAt: string;
+};
+export interface Message {
+    id: number;
+    createdAt: string;
+    content: string | null;
+    senderId: number;
+    conversationId: number;
+    updatedAt: string | null;
+    deleted: boolean;
+};
+
+export interface MessageFull extends Message {
+    reads: MessageRead[]
+};
+export interface Attachment {
+    id: number;
+    messageId: number;
+    userId: number;
+    url: string;
+    type: string;
+    uploadedAt: string;
+};
+export interface MessageRead {
+    id: number;
+    messageId: number;
+    userId: number;
+    readAt: string;
+};
+export interface Participant {
+    id: number;
+    conversationId: number;
+    userId: number;
+    joinedAt: string;
+    deletedAt: string | null;
+};
+
+export interface ParticipantFull extends Participant {
+    user: User
+};
+
+export interface Conversation {
+    id: number;
+    createdAt: string;
+    title: string | null;
+    isGroup: boolean;
+    creatorId: number;
+};

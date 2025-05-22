@@ -3,14 +3,10 @@
 import { createContext, useContext, useState, useEffect, Dispatch, SetStateAction } from "react"
 import api from "@/lib/axios"
 import { usePathname, useRouter } from "next/navigation";
+import Loader from "@/components/Loader";
+import { User } from "@/types/database";
+import socket from "@/lib/socket";
 
-type User = {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-    createdAt: string;
-}
 interface AuthContextProps {
     user: User | null
     setUser: Dispatch<SetStateAction<User | null>>
@@ -18,28 +14,50 @@ interface AuthContextProps {
 const AuthContext = createContext<AuthContextProps | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null)
-  const router = useRouter()
-const pathname = usePathname()
+    const [user, setUser] = useState<User | null>(null)
+    const [loading, setLoading] = useState(true)
+    const router = useRouter()
+    const pathname = usePathname()
 
     useEffect(() => {
-    const fetchUser = async () => {
-        try {
-            const res = await api.get("/api/auth/me")
-            setUser(res.data.user)
+        const fetchUser = async () => {
+            try {
+                const res = await api.get("/api/auth/me")
+                setUser(res.data.user)
 
-            // 👇 Si el usuario está en login y ya tiene token válido, redirigimos
-            if (pathname === "/login" || pathname === "/" || pathname === "/register") {
-                router.replace("/chats") // Esto forza navegación real => se ejecuta middleware
+                // 👇 Si el usuario está en login y ya tiene token válido, redirigimos
+                if (pathname === "/login" || pathname === "/" || pathname === "/register") {
+                    router.replace("/chats") // Esto forza navegación real => se ejecuta middleware
+                }
+
+            } catch {
+                setUser(null)
+            } finally {
+                setLoading(false)
             }
-
-        } catch {
-            setUser(null)
         }
+
+        fetchUser()
+    }, [pathname, router])
+
+    useEffect(() => {
+        if (user) {
+            socket.emit("usuario:conectado", user.id)
+
+            return () => {
+                socket.emit("usuario:desconectado", user.id)
+            }
+        }
+    }, [user])
+
+    if(loading){
+        return (
+            <div className="h-screen flex justify-center items-center bg-zinc-800">
+                <Loader />
+            </div>
+        )
     }
 
-    fetchUser()
-}, [pathname, router])
 
     return (
         <AuthContext.Provider value={{ user, setUser }}>

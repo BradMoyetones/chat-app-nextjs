@@ -10,7 +10,7 @@ import { useEffect } from 'react'
 import socket from '@/lib/socket'
 
 export default function Home() {
-  const {type, chatId, setChat} = useViewStore()
+  const {type, chatId} = useViewStore()
   useEffect(() => {
     if (!socket.connected) {
       socket.connect()
@@ -23,15 +23,13 @@ export default function Home() {
 
   return (
     <div className="layout">
-      <aside className="sidebar">
+      <aside className="sidebar bg-zinc-200 dark:bg-zinc-900">
         <Sidebar />
       </aside>
 
-      <section className="chat-list">
+      <section className="chat-list bg-background border-r border-border">
         {type === "chat" && (
-          <ChatList
-            onSelectChat={(chatId: number) => setChat(chatId)}
-          />
+          <ChatList />
         )}
 
         {type === "settings" && <SettingsView />}
@@ -39,7 +37,7 @@ export default function Home() {
         
       </section>
 
-      <section className="chat-window">
+      <section className="chat-window bg-zinc-200 dark:bg-zinc-900">
         <ChatView chatId={chatId} />
       </section>
     </div>
