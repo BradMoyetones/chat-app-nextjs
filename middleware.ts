@@ -11,7 +11,8 @@ export async function middleware(req: NextRequest) {
     if (
         path.startsWith('/_next') || 
         path.startsWith('/static') || 
-        path === '/favicon.ico' ||
+        path === '/favicon.ico' || 
+        path === '/favicon.svg' || 
         path.startsWith('/api/public') // ejemplo de rutas públicas
     ) {
         return NextResponse.next()

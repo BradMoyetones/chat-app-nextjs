@@ -23,20 +23,21 @@ api.interceptors.response.use(
     async error => {
         const originalRequest = error.config
 
+        // Evita el loop si el error viene de /refresh
         if (
             error.response?.status === 401 &&
-            !originalRequest._retry // evitar loop infinito
+            !originalRequest._retry &&
+            originalRequest.url !== '/api/auth/refresh'
         ) {
             originalRequest._retry = true
 
             try {
-                // Hacemos la solicitud para renovar el token
-                await api.post('/api/auth/refresh') // asume que el refreshToken va por header
+                await api.post('/api/auth/refresh') // Usa el header como ya lo haces
 
-                // Reintentamos la solicitud original
+                // Reintenta la solicitud original
                 return api(originalRequest)
             } catch (refreshError) {
-                // Si falla el refresh, redireccionamos a login
+                // Redirige al login u otra acción
                 return Promise.reject(refreshError)
             }
         }

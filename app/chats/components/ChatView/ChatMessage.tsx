@@ -36,8 +36,8 @@ export function ChatMessage({ message, currentUser, participants, isLastInSequen
 
             <div
                 className={cn(
-                    "px-4 py-2.5 max-w-[280px] break-words relative",
-                    isMe ? "bg-primary text-primary-foreground" : "bg-muted",
+                    "px-4 py-2.5 max-w-[280px] break-words relative shadow",
+                    isMe ? "bg-primary text-primary-foreground" : "bg-background",
                     // Apply different border radius based on sequence position
                     isLastInSequence ? (isMe ? "rounded-2xl rounded-br-none" : "rounded-2xl rounded-bl-none") : "rounded-2xl",
                 )}

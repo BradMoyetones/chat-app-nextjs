@@ -5,24 +5,30 @@ import socket from "@/lib/socket"
 import { ConversationFull, MessageFull, MessageRead } from "@/types/database"
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Send } from "lucide-react"
+import { Send, Smile } from "lucide-react"
 import ChatMessages from "./ChatMessages"
 import ChatHeader from "./ChatHeader"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Textarea } from "@/components/ui/textarea"
+import { useConversations } from "@/contexts/ConversationContext"
+import { useViewStore } from "@/hooks/useViewStore"
+import Loader from "@/components/Loader"
+import Picker from '@emoji-mart/react'
+import data from '@emoji-mart/data'
+import { useTheme } from "next-themes"
 
-type ChatViewProps = {
-    chatId?: number
-}
-
-export default function ChatView({ chatId }: ChatViewProps) {
+export default function ChatView() {
+    const {chatId} = useViewStore()
     const [conversation, setConversation] = useState<ConversationFull | null>(null)
     const [loading, setLoading] = useState(false)
     const [messageContent, setMessageContent] = useState("")
     const { user } = useAuth()
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const markedReadIdsRef = useRef<number[]>([])
-    
+    const { markConversationAsRead } = useConversations()
+    const [showPicker, setShowPicker] = useState(false)
+    const { theme } = useTheme()
+
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
     }, [conversation?.messages])
@@ -85,17 +91,19 @@ export default function ChatView({ chatId }: ChatViewProps) {
             .filter(msg => msg.senderId !== user.id && !msg.reads.some(r => r.userId === user.id))
             .map(msg => msg.id)
 
-        // Filtrar solo mensajes que no estén ya en markedReadIdsRef
         const newUnreadIds = unreadMessageIds.filter(id => !markedReadIdsRef.current.includes(id))
 
         if (newUnreadIds.length > 0) {
             api.post('/api/message-reads', {
                 messageIds: newUnreadIds
-            })
-            .then(() => {
+            }).then(() => {
                 markedReadIdsRef.current = [...markedReadIdsRef.current, ...newUnreadIds]
+
+                // 🔁 Resetear unseenCount de esta conversación
+                markConversationAsRead(conversation.id)
             })
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [conversation, user])
 
 
@@ -179,7 +187,7 @@ export default function ChatView({ chatId }: ChatViewProps) {
     }
 
     if (loading) {
-        return <div className="text-center text-gray-500 mt-10">Cargando...</div>
+        return <div className='h-full flex items-center justify-center bg-background'><Loader /></div>
     }
 
     if (!conversation) return null
@@ -195,7 +203,7 @@ export default function ChatView({ chatId }: ChatViewProps) {
                         user={user}
                         participants={conversation.participants}
                     />
-                    <div ref={messagesEndRef} />
+                    <div ref={messagesEndRef} className="h-20" />
                 </div>
             </ScrollArea>
 
@@ -204,12 +212,49 @@ export default function ChatView({ chatId }: ChatViewProps) {
                 onSubmit={handleSendMessage}
                 className="flex items-end gap-2 mt-4 border-t border-border bg-background p-4 absolute bottom-0 right-0 left-0"
             >
-                <Textarea
-                    className="min-h-8 max-h-36"
-                    placeholder="Escribe un mensaje..."
-                    value={messageContent}
-                    onChange={(e) => setMessageContent(e.target.value)}
-                />
+                <div className="relative w-full">
+                    <Textarea
+                        className="min-h-8 max-h-36"
+                        placeholder="Escribe un mensaje..."
+                        value={messageContent}
+                        onChange={(e) => setMessageContent(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey && !e.altKey) {
+                                e.preventDefault(); // Evita el salto de línea
+                                if (messageContent.trim()) {
+                                    handleSendMessage(e); // Llama manualmente el submit
+                                }
+                            }
+                        }}
+                    />
+                    <div className="relative">
+                        <Button
+                            type="button"
+                            variant={"ghost"}
+                            size={"icon"}
+                            onClick={() => setShowPicker(!showPicker)}
+                            className="absolute right-1 bottom-[1.5px] z-10 rounded-full"
+                        >
+                            <Smile />
+                            <span className="sr-only">Emogis</span>
+                        </Button>
+                        {showPicker && (
+                            <div className="absolute bottom-10 right-0 mb-2 z-50">
+                                <Picker
+                                    data={data}
+                                    theme={theme}
+                                    onClickOutside={() => setShowPicker(false)}
+                                    onEmojiSelect={(emoji: {native: string}) =>
+                                        setMessageContent((prev) => prev + emoji.native)
+                                    }
+                                />
+                            </div>
+                        )}
+                    </div>
+                    
+                </div>
+                
+                
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Button

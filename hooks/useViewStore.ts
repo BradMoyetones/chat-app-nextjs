@@ -1,17 +1,17 @@
 import { create } from "zustand";
 
-type ViewType = "chat" | "settings" | "profile" | "none";
+export type ViewType = "chat" | "settings" | "profile" | "contacts" | "calls" | "none";
 
 type Store = {
     type: ViewType;
-    chatId?: number; // se mantiene aunque el type no sea "chat"
+    chatId: number | null; // se mantiene aunque el type no sea "chat"
     setView: (view: ViewType) => void;
-    setChat: (chatId: number) => void;
+    setChat: (chatId: number | null) => void;
 };
 
 export const useViewStore = create<Store>((set) => ({
-    type: "none",
-    chatId: undefined,
+    type: "chat",
+    chatId: null,
     setView: (type) => set({ type }),
     setChat: (chatId) => set({ chatId, type: "chat" }),
 }));

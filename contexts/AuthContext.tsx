@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     if(loading){
         return (
-            <div className="h-screen flex justify-center items-center bg-zinc-800">
+            <div className="h-screen flex justify-center items-center bg-background">
                 <Loader />
             </div>
         )

@@ -12,6 +12,12 @@ export interface User {
     password: string;
     createdAt: string;
 };
+
+export interface UserSearh extends User {
+    sentRequests: ContactRequest[]
+    receivedRequests: ContactRequest[]
+};
+
 export interface Message {
     id: number;
     createdAt: string;
@@ -58,3 +64,12 @@ export interface Conversation {
     isGroup: boolean;
     creatorId: number;
 };
+
+export interface ContactRequest {
+    id: number;
+    senderId: number;
+    receiverId: number;
+    status: "PENDING" | "ACCEPTED" | "REJECTED";
+    createdAt: string;
+    respondedAt: string
+}

@@ -10,6 +10,7 @@ interface ConversationContextProps {
     conversations: ConversationFull[]
     setConversations: Dispatch<SetStateAction<ConversationFull[]>>
     loading: boolean
+    markConversationAsRead: (id: number) => void
 }
 const ConversationContext = createContext<ConversationContextProps | undefined>(undefined)
 
@@ -69,8 +70,21 @@ export const ConversationProvider = ({ children }: { children: React.ReactNode }
         }
     }, [user])
 
+    const markConversationAsRead = (id: number) => {
+        setConversations(prev => {
+            const updated = [...prev]
+            const index = updated.findIndex(c => c.id === id)
+            if (index === -1) return prev
+
+            const conv = { ...updated[index], unseenCount: 0 }
+            updated[index] = conv
+            return updated
+        })
+    }
+
+
     return (
-        <ConversationContext.Provider value={{ conversations, setConversations, loading }}>
+        <ConversationContext.Provider value={{ conversations, setConversations, loading, markConversationAsRead }}>
             {children}
         </ConversationContext.Provider>
     )
