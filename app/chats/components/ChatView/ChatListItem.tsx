@@ -28,8 +28,8 @@ export default function ChatListItem({ conversation, isActive, onClick }: ChatLi
             className={cn(
                 "flex items-center p-4 rounded-xl shadow cursor-pointer transition-all",
                 isActive
-                    ? "bg-zinc-300 dark:bg-zinc-800"
-                    : "bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                    ? "bg-muted"
+                    : "bg-muted/50 hover:bg-muted"
             )}
             onClick={() => onClick(id)}
         >
@@ -44,7 +44,7 @@ export default function ChatListItem({ conversation, isActive, onClick }: ChatLi
                     {getDisplayName(conversation, user)}
                 </h3>
                 <p className="text-muted-foreground line-clamp-1">
-                    {lastMessage?.content}
+                    {lastMessage?.content || "No messages"}
                 </p>
             </div>
             <div className="ml-2 flex flex-col h-full mb-auto">

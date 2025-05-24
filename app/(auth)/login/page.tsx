@@ -32,7 +32,7 @@ export default function LoginPage() {
             })
     
             setUser(response.data.user)
-            router.push("/")
+            router.push("/chats")
             
         }catch(e){
             console.log(e);

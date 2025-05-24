@@ -89,7 +89,7 @@ export function SearchUserModal({open, setOpen}: {open: boolean, setOpen: Dispat
     const cancelRequest = async (receiverId: number, id: number) => {
         setLoadingIds(prev => new Set(prev).add(receiverId))
         try {
-            await api.delete(`/api/contacts/request/${id}/delete`)
+            await api.delete(`/api/contacts/request/${id}/cancel`)
 
             setUsers(prev =>
                 prev.map(user => {

@@ -168,12 +168,6 @@ export default function ChatView() {
                 conversationId: chatId,
             })
 
-            // Ya no necesitas agregarlo manualmente (lo hará el socket),
-            // pero si quieres evitar latencia visual puedes dejarlo igual:
-            setConversation(prev =>
-                prev ? { ...prev, messages: [...prev.messages, newMessage] } : prev
-            )
-
             setMessageContent("")
         } catch (err) {
             console.error("Error al enviar el mensaje", err)
@@ -194,6 +188,8 @@ export default function ChatView() {
 
     return (
         <div className="flex flex-col h-full overflow-hidden relative">
+            <div className="absolute inset-0 bg-[url('/background_1.png')] dark:flex hidden opacity-10 pointer-events-none z-0" />
+            <div className="absolute inset-0 bg-[url('/background_2.png')] dark:hidden flex pointer-events-none z-0" />
             <ChatHeader participant={otherParticipant} />
             {/* Scroll de mensajes */}
             <ScrollArea className="flex-1 px-2 h-full max-h-[92%]">

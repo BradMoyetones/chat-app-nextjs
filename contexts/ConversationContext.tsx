@@ -62,11 +62,21 @@ export const ConversationProvider = ({ children }: { children: React.ReactNode }
             })
         }
 
+        const handleNuevaConversacion = (nueva: ConversationFull) => {
+            setConversations(prev => {
+                const exists = prev.some(c => c.id === nueva.id)
+                if (exists) return prev
+
+                return [nueva, ...prev]
+            })
+        }
 
         socket.on("mensaje:recibido", handleNuevoMensaje)
+        socket.on('conversation:created', handleNuevaConversacion)
 
         return () => {
             socket.off("mensaje:recibido", handleNuevoMensaje)
+            socket.off("conversation:created", handleNuevaConversacion)
         }
     }, [user])
 

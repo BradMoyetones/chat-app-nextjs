@@ -27,14 +27,22 @@ export default function ChatList() {
                 </div>
 
                 <div className='space-y-2 px-4'>
-                    {conversations.map((con) => (
-                        <ChatListItem
-                            key={con.id}
-                            conversation={con}
-                            isActive={chatId === con.id}
-                            onClick={setChat}
-                        />
-                    ))}
+                    {conversations
+                        .slice() // para no mutar el arreglo original
+                        .sort((a, b) => {
+                            const aDate = a.messages[0]?.createdAt ? new Date(a.messages[0].createdAt).getTime() : 0
+                            const bDate = b.messages[0]?.createdAt ? new Date(b.messages[0].createdAt).getTime() : 0
+                            return bDate - aDate // orden descendente: el más reciente primero
+                        })
+                        .map((con) => (
+                            <ChatListItem
+                                key={con.id}
+                                conversation={con}
+                                isActive={chatId === con.id}
+                                onClick={setChat}
+                            />
+                        ))}
+
                 </div>
             </div>
         </ScrollArea>

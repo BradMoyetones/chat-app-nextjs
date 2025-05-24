@@ -15,7 +15,7 @@ export default function ChatHeader({ participant }: ChatHeaderProps) {
     const isOnline = useOnlineStatus(participant?.id)
 
     return (
-        <header className="p-4 bg-background flex items-center justify-between">
+        <header className="p-4 bg-background flex items-center justify-between z-10">
             <div className="flex items-center gap-2">
                 <UserAvatar 
                     src="https://github.com/shadcn.png"

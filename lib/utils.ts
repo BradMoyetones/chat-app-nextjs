@@ -25,15 +25,17 @@ export const getDisplayName = (con: ConversationFull, user: User | null) => {
     : shown.join(", ")
 }
 
-export const getFormattedTime = (dateString: string) => {
+export const getFormattedTime = (dateString?: string | null) => {
+  if (!dateString) return ""
+
   const date = parseISO(dateString)
 
   if (isToday(date)) {
-      return format(date, 'h:mm a')
+    return format(date, 'h:mm a')
   }
 
   if (isYesterday(date)) {
-      return 'Yesterday'
+    return 'Yesterday'
   }
 
   const daysDiff = differenceInDays(new Date(), date)

@@ -73,3 +73,9 @@ export interface ContactRequest {
     createdAt: string;
     respondedAt: string
 }
+
+export interface ContactRequestFull extends ContactRequest {
+    sender: User
+    receiver: User
+    friend: User
+}

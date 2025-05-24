@@ -45,7 +45,7 @@ export default function Home() {
         
       </section>
 
-      <section className="chat-window bg-muted">
+      <section className="chat-window bg-background">
         <ChatView />
       </section>
     </div>
