@@ -1,33 +1,40 @@
 // components/chat/ChatHeader.tsx
 import { Button } from "@/components/ui/button"
 import { Phone, Search, Video } from "lucide-react"
-import { User } from "@/types/database"
+import { ConversationFull } from "@/types/database"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { UserAvatar } from "@/components/UserAvatar"
 import { useOnlineStatus } from "@/hooks/useOnlineStatus"
+import { useAuth } from "@/contexts/AuthContext"
+import { getDisplayName } from "@/lib/utils"
 
 type ChatHeaderProps = {
-    participant: User | null
+    conversation: ConversationFull | null,
+    isGroup: boolean
 }
 
-export default function ChatHeader({ participant }: ChatHeaderProps) {
+export default function ChatHeader({ conversation, isGroup }: ChatHeaderProps) {
+    const {user} = useAuth()
 
-    const isOnline = useOnlineStatus(participant?.id)
+    const otherParticipants = isGroup && conversation ? getDisplayName(conversation, user) : null
+    const otherParticipant = !isGroup && conversation ? conversation?.participants.find(p => p.userId !== user?.id)?.user : undefined
+    
+    const isOnline = useOnlineStatus(otherParticipant?.id) || undefined
 
     return (
-        <header className="p-4 bg-background flex items-center justify-between z-10">
+        <header className="p-4 bg-background flex items-center justify-between z-10 border-b">
             <div className="flex items-center gap-2">
                 <UserAvatar 
                     src="https://github.com/shadcn.png"
-                    fallback={(participant?.firstName?.charAt(0)+""+participant?.lastName?.charAt(0)) || ""}
+                    fallback={(otherParticipant?.firstName?.charAt(0)+""+otherParticipant?.lastName?.charAt(0)) || "GR"}
                     isOnline={isOnline}
                     className="h-10 w-10"
                 />
                 <div>
-                    <h1 className="font-bold line-clamp-1">{participant?.firstName} {participant?.lastName}</h1>
+                    <h1 className="font-bold line-clamp-1">{otherParticipant?.firstName || conversation?.title} {otherParticipant?.lastName || ""}</h1>
                     <p className="text-xs flex items-center gap-1">
                         {/* {isOnline ? <span className="size-2 rounded-full bg-green-500 shrink-0" /> : <span className="size-2 rounded-full bg-red-500 shrink-0" />} */}
-                        {isOnline ? "Online" : "Offline"}
+                        {!isGroup ? (isOnline ? "Online" : "Offline") : otherParticipants}
                     </p>
                 </div>
             </div>

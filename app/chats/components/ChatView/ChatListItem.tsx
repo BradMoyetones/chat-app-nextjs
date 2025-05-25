@@ -11,9 +11,10 @@ type ChatListItemProps = {
     conversation: ConversationFull
     isActive: boolean
     onClick: (id: number) => void
+    isTyping: boolean
 }
 
-export default function ChatListItem({ conversation, isActive, onClick }: ChatListItemProps) {
+export default function ChatListItem({ conversation, isActive, onClick, isTyping }: ChatListItemProps) {
     const { id, messages, unseenCount } = conversation
     const lastMessage = messages[0]
     const {user} = useAuth()
@@ -26,10 +27,10 @@ export default function ChatListItem({ conversation, isActive, onClick }: ChatLi
         <div
             key={id + "-card-chat-list"}
             className={cn(
-                "flex items-center p-4 rounded-xl shadow cursor-pointer transition-all",
+                "flex items-center p-4 rounded-xl cursor-pointer transition-all",
                 isActive
-                    ? "bg-muted"
-                    : "bg-muted/50 hover:bg-muted"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted/50 hover:bg-muted border-transparent"
             )}
             onClick={() => onClick(id)}
         >
@@ -41,10 +42,10 @@ export default function ChatListItem({ conversation, isActive, onClick }: ChatLi
             />
             <div className="text-left ml-2 w-full">
                 <h3 className="font-semibold line-clamp-1">
-                    {getDisplayName(conversation, user)}
+                    {conversation.isGroup ? conversation.title : getDisplayName(conversation, user)}
                 </h3>
                 <p className="text-muted-foreground line-clamp-1">
-                    {lastMessage?.content || "No messages"}
+                    {isTyping ? <span className="text-sm text-gray-500">Escribiendo...</span> : (lastMessage?.content || "No messages")}
                 </p>
             </div>
             <div className="ml-2 flex flex-col h-full mb-auto">

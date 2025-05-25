@@ -28,6 +28,9 @@ export default function ChatView() {
     const { markConversationAsRead } = useConversations()
     const [showPicker, setShowPicker] = useState(false)
     const { theme } = useTheme()
+    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const isTypingRef = useRef(false); // para evitar emitir typing varias veces
+    const prevChatIdRef = useRef<number | null>(null);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -168,13 +171,52 @@ export default function ChatView() {
                 conversationId: chatId,
             })
 
+            // Deneter escribiendo
+            socket.emit("stopTyping", { conversationId: chatId, userId: user.id });
+            isTypingRef.current = false;
+
             setMessageContent("")
         } catch (err) {
             console.error("Error al enviar el mensaje", err)
         }
     }
 
-    const otherParticipant = conversation?.participants.find(p => p.userId !== user?.id)?.user || null
+    const handleTyping = () => {
+        if (!socket || !chatId || !user) return;
+
+        if (!isTypingRef.current) {
+            socket.emit("typing", { conversationId: chatId, userId: user.id });
+            isTypingRef.current = true;
+        }
+
+        if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+        }
+
+        typingTimeoutRef.current = setTimeout(() => {
+            socket.emit("stopTyping", { conversationId: chatId, userId: user.id });
+            isTypingRef.current = false;
+        }, 3000); // espera 3 segundos de inactividad
+    }
+
+    useEffect(() => {
+        if (!user) return;
+
+        const prevChatId = prevChatIdRef.current;
+        
+        if (prevChatId && isTypingRef.current) {
+            socket.emit("stopTyping", { conversationId: prevChatId, userId: user.id });
+            isTypingRef.current = false;
+        }
+
+        prevChatIdRef.current = chatId;
+        
+        // Limpia el timeout anterior si existía
+        if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+            typingTimeoutRef.current = null;
+        }
+    }, [chatId, user]);
 
     if (!chatId) {
         return <div className="text-center text-gray-500 mt-10">Selecciona un chat para empezar a conversar</div>
@@ -189,10 +231,10 @@ export default function ChatView() {
     return (
         <div className="flex flex-col h-full overflow-hidden relative">
             <div className="absolute inset-0 bg-[url('/background_1.png')] dark:flex hidden opacity-10 pointer-events-none z-0" />
-            <div className="absolute inset-0 bg-[url('/background_2.png')] dark:hidden flex pointer-events-none z-0" />
-            <ChatHeader participant={otherParticipant} />
+            <div className="absolute inset-0 bg-[url('/background_1_white.png')] opacity-10 dark:hidden flex pointer-events-none z-0" />
+            <ChatHeader conversation={conversation} isGroup={conversation.isGroup} />
             {/* Scroll de mensajes */}
-            <ScrollArea className="flex-1 px-2 h-full max-h-[92%]">
+            <ScrollArea className="flex-1 px-2 h-full max-h-[92%] pt-4">
                 <div className="space-y-2 pb-0">
                     <ChatMessages 
                         messages={conversation.messages}
@@ -213,7 +255,10 @@ export default function ChatView() {
                         className="min-h-8 max-h-36"
                         placeholder="Escribe un mensaje..."
                         value={messageContent}
-                        onChange={(e) => setMessageContent(e.target.value)}
+                        onChange={(e) => {
+                            setMessageContent(e.target.value);
+                            handleTyping();
+                        }}
                         onKeyDown={(e) => {
                             if (e.key === "Enter" && !e.shiftKey && !e.altKey) {
                                 e.preventDefault(); // Evita el salto de línea

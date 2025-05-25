@@ -26,11 +26,15 @@ export default function ProfileList() {
                     <div className="grid grid-cols-2 gap-4 w-full mt-10">
                         <div className="space-y-2">
                             <Label>First Name</Label>
-                            <Input />
+                            <Input
+                                defaultValue={user?.firstName || ""}
+                            />
                         </div>
                         <div className="space-y-2">
                             <Label>First Name</Label>
-                            <Input />
+                            <Input 
+                                defaultValue={user?.lastName || ""}
+                            />
                         </div>
                         <div className="space-y-2 col-span-2">
                             <Label>Descripción</Label>

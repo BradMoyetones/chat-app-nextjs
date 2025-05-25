@@ -34,7 +34,7 @@ const links: LinkType[] = [
         href: "contacts"
     },
     {
-        name: "calls",
+        name: "Calls",
         icon: Phone,
         href: "calls"
     },

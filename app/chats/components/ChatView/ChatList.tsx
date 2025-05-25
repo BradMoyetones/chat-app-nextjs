@@ -10,7 +10,7 @@ import HeaderList from '@/components/HeaderList'
 
 export default function ChatList() {
     const {chatId, setChat} = useViewStore()
-    const { conversations } = useConversations()
+    const { conversations, typingUsers } = useConversations()
 
     return (
         <ScrollArea className='h-screen'>
@@ -40,6 +40,7 @@ export default function ChatList() {
                                 conversation={con}
                                 isActive={chatId === con.id}
                                 onClick={setChat}
+                                isTyping={typingUsers[con.id]}
                             />
                         ))}
 

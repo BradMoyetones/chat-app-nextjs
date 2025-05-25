@@ -139,7 +139,7 @@ export function SearchUserModal({open, setOpen}: {open: boolean, setOpen: Dispat
                 {users.length > 0 && (
                     <CommandGroup heading="Suggestions" forceMount>
                     {users.map((user) => {
-                        const status = user.receivedRequests[0]?.status
+                        const status = user.receivedRequests[0]?.status || user.sentRequests[0]?.status
                         return (
                             <CommandItem key={user.id + "-item-search"}>
                                 <UserAvatar 

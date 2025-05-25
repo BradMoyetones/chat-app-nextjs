@@ -11,6 +11,7 @@ interface ConversationContextProps {
     setConversations: Dispatch<SetStateAction<ConversationFull[]>>
     loading: boolean
     markConversationAsRead: (id: number) => void
+    typingUsers: Record<number, boolean>
 }
 const ConversationContext = createContext<ConversationContextProps | undefined>(undefined)
 
@@ -18,6 +19,7 @@ export const ConversationProvider = ({ children }: { children: React.ReactNode }
     const { user } = useAuth()
     const [conversations, setConversations] = useState<ConversationFull[]>([])
     const [loading, setLoading] = useState(false)
+    const [typingUsers, setTypingUsers] = useState<Record<number, boolean>>({})
 
     const fetchData = async() => {
         setLoading(true)
@@ -71,10 +73,24 @@ export const ConversationProvider = ({ children }: { children: React.ReactNode }
             })
         }
 
+        const handleTyping = ({ conversationId }: { conversationId: number }) => {
+            setTypingUsers(prev => ({ ...prev, [conversationId]: true }));
+        }
+
+        const handleStopTyping = ({ conversationId }: { conversationId: number }) => {
+            setTypingUsers(prev => ({ ...prev, [conversationId]: false }));
+        }
+
+        socket.on("typing", handleTyping)
+        socket.on("stopTyping", handleStopTyping)
+
         socket.on("mensaje:recibido", handleNuevoMensaje)
         socket.on('conversation:created', handleNuevaConversacion)
 
         return () => {
+            socket.off("typing", handleTyping)
+            socket.off("stopTyping", handleStopTyping)
+
             socket.off("mensaje:recibido", handleNuevoMensaje)
             socket.off("conversation:created", handleNuevaConversacion)
         }
@@ -94,7 +110,7 @@ export const ConversationProvider = ({ children }: { children: React.ReactNode }
 
 
     return (
-        <ConversationContext.Provider value={{ conversations, setConversations, loading, markConversationAsRead }}>
+        <ConversationContext.Provider value={{ conversations, setConversations, loading, markConversationAsRead, typingUsers }}>
             {children}
         </ConversationContext.Provider>
     )

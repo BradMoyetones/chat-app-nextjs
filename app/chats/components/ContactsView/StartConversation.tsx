@@ -24,7 +24,7 @@ import ContactCard from "./ContactCard"
 
 type FormData = {
     isGroup: boolean
-    name?: string
+    title?: string
     participantIds: number[]
 }
 
@@ -41,7 +41,7 @@ export function StartConversation({ open, setOpen, participantId, setParticipant
     } = useForm<FormData>({
         defaultValues: {
             isGroup: false,
-            name: "",
+            title: "",
             participantIds: []
         },
     })
@@ -49,7 +49,7 @@ export function StartConversation({ open, setOpen, participantId, setParticipant
     const isGroup = watch("isGroup")
 
     const onSubmit = async(data: FormData) => {
-        if (isGroup && !data.name?.trim()) return // extra seguridad
+        if (isGroup && !data.title?.trim()) return // extra seguridad
         setLoading(true)
         try {
             await api.post(`/api/conversations`, data)
@@ -108,7 +108,7 @@ export function StartConversation({ open, setOpen, participantId, setParticipant
                                         if (!checked) {
                                             // limpia el name si se desactiva el switch
                                             control._formValues.name = "" // evita que se quede con el valor anterior
-                                            control.unregister("name") // lo quita del form
+                                            control.unregister("title") // lo quita del form
                                         }
                                     }}
                                     className="col-span-3"
@@ -126,14 +126,14 @@ export function StartConversation({ open, setOpen, participantId, setParticipant
                             <div className="col-span-3">
                                 <Input
                                     id="name"
-                                    {...register("name", {
+                                    {...register("title", {
                                         required: "Group name is required",
                                         validate: value => (value?.trim() !== "" ? true : "Name cannot be empty")
                                     })}
                                 />
-                                {errors.name && (
+                                {errors.title && (
                                     <p className="text-sm text-red-500 mt-1">
-                                        {errors.name.message}
+                                        {errors.title.message}
                                     </p>
                                 )}
                             </div>
