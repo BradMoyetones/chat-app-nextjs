@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useAuth } from "@/contexts/AuthContext"
 import api from "@/lib/axios"
@@ -16,6 +17,7 @@ import Loader from "@/components/Loader"
 import Picker from '@emoji-mart/react'
 import data from '@emoji-mart/data'
 import { useTheme } from "next-themes"
+import { StartConversation } from "../ContactsView/StartConversation"
 
 export default function ChatView() {
     const {chatId} = useViewStore()
@@ -31,6 +33,8 @@ export default function ChatView() {
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const isTypingRef = useRef(false); // para evitar emitir typing varias veces
     const prevChatIdRef = useRef<number | null>(null);
+
+    const [openIC, setOpenIC] = useState(false)
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -51,11 +55,11 @@ export default function ChatView() {
                 const alreadyExists = prev.messages.some(m => m.id === msg.id)
                 if (alreadyExists) return prev
 
-                // 🔊 Reproducir sonido
-                audio.play().catch((err) => {
-                    // Algunos navegadores requieren interacción previa del usuario para permitir reproducción
-                    console.warn("No se pudo reproducir el sonido:", err)
-                })
+                if(user?.id !== msg.senderId){
+                    audio.play().catch((err) => {
+                        console.warn("No se pudo reproducir el sonido:", err)
+                    })
+                }                
 
                 return { ...prev, messages: [...prev.messages, msg] }
             })
@@ -66,7 +70,7 @@ export default function ChatView() {
         return () => {
             socket.off("mensaje:recibido", handleNewMessage)
         }
-    }, [chatId])
+    }, [chatId, user])
 
 
     const fetchData = async () => {
@@ -219,7 +223,16 @@ export default function ChatView() {
     }, [chatId, user]);
 
     if (!chatId) {
-        return <div className="text-center text-gray-500 mt-10">Selecciona un chat para empezar a conversar</div>
+        return (
+            <div className="text-muted-foreground h-full gap-2 flex flex-col items-center justify-center">
+                <img src="/initial_screen.svg" alt="" />
+                <p>Select a conversation or start a <Button variant={"link"} className="p-0 cursor-pointer" onClick={() => setOpenIC(prev => !prev)}>new one</Button></p>
+                <StartConversation 
+                    open={openIC} 
+                    setOpen={setOpenIC} 
+                />
+            </div>
+        )
     }
 
     if (loading) {
@@ -234,14 +247,14 @@ export default function ChatView() {
             <div className="absolute inset-0 bg-[url('/background_1_white.png')] opacity-10 dark:hidden flex pointer-events-none z-0" />
             <ChatHeader conversation={conversation} isGroup={conversation.isGroup} />
             {/* Scroll de mensajes */}
-            <ScrollArea className="flex-1 px-2 h-full max-h-[92%] pt-4">
-                <div className="space-y-2 pb-0">
+            <ScrollArea className="flex-1 px-2 h-full max-h-[calc(100dvh-73px-71px)]">
+                <div className="space-y-2 pb-0 pt-4">
                     <ChatMessages 
                         messages={conversation.messages}
                         user={user}
                         participants={conversation.participants}
                     />
-                    <div ref={messagesEndRef} className="h-20" />
+                    <div ref={messagesEndRef} />
                 </div>
             </ScrollArea>
 

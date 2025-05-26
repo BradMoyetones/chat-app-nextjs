@@ -1,4 +1,3 @@
-import { ConversationProvider } from "@/contexts/ConversationContext";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -13,9 +12,7 @@ export default function RootLayout({
 }>) {
   return (
     <div>
-      <ConversationProvider>
-        {children}
-      </ConversationProvider>
+      {children}
     </div>
   );
 }

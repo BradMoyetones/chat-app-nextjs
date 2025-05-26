@@ -16,7 +16,7 @@ export default function HeaderList({children}: Readonly<{
                 ref={titleRef}
                 className={cn(
                     "font-bold text-2xl mt-4 sticky top-0 z-10 transition-all px-4",
-                    isSticky && "bg-muted p-4 shadow"
+                    isSticky && "bg-muted/50 backdrop-blur-2xl p-4 shadow"
                 )}
             >
                 {children}

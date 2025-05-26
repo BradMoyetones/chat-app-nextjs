@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils"
-import { Avatar } from "@/components/ui/avatar"
 import { format } from "date-fns"
 import { CheckCheck, Check } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { MessageFull, ParticipantFull, User } from "@/types/database"
+import { UserAvatar } from "@/components/UserAvatar"
+import { useOnlineStatus } from "@/hooks/useOnlineStatus"
 
 interface ChatMessageProps {
   message: MessageFull
@@ -20,16 +21,18 @@ export function ChatMessage({ message, currentUser, participants, isLastInSequen
     // Format timestamp
     const timestamp = new Date(message.createdAt)
     const timeString = format(timestamp, "h:mm a")
+
+    const isOnline = useOnlineStatus(sender?.userId)
   
     return (
         <div className={cn("group flex items-end gap-2", isMe ? "flex-row-reverse" : "flex-row")}>
             {!isMe && isLastInSequence && (
-                <Avatar className="h-8 w-8">
-                    <div className="bg-primary text-primary-foreground rounded-full h-full w-full flex items-center justify-center text-xs font-medium">
-                        {sender?.user.firstName.charAt(0)}
-                        {sender?.user.lastName.charAt(0)}
-                    </div>
-                </Avatar>
+                <UserAvatar 
+                    src="https://github.com/shadcn.png"
+                    fallback={(sender?.user.firstName.charAt(0)+""+sender?.user.lastName.charAt(0))}
+                    className="h-8 w-8"
+                    isOnline={isOnline}
+                />
             )}
 
             {!isMe && !isLastInSequence && <div className="w-8" />}

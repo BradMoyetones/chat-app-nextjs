@@ -1,12 +1,12 @@
 'use client'
 
-import Sidebar from '../components/Sidebar'
 import { useViewStore } from '@/hooks/useViewStore'
 import ChatView from './components/ChatView/ChatView'
 import ChatList from './components/ChatView/ChatList'
 import { lazy, Suspense, useEffect } from 'react'
 import socket from '@/lib/socket'
 import Loader from '@/components/Loader'
+import Sidebar from './components/Sidebar'
 
 const SettingsList = lazy(() => import('./components/SettingsView/SettingsList'))
 const ProfileList = lazy(() => import('./components/ProfileView/ProfileList'))

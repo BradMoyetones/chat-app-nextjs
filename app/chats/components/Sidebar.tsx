@@ -1,7 +1,6 @@
 import { ModeToggle } from '@/components/ModeToggle'
 import { Button } from '@/components/ui/button'
-import { useViewStore, ViewType } from '@/hooks/useViewStore'
-import { LucideIcon, MessageCircleMore, Phone, Settings, Users2Icon } from 'lucide-react'
+import { useViewStore } from '@/hooks/useViewStore'
 import Image from 'next/image'
 import React, { useEffect } from 'react'
 import {
@@ -16,34 +15,7 @@ import { UserAvatar } from '@/components/UserAvatar'
 import { useAuth } from '@/contexts/AuthContext'
 import { useOnlineStatus } from '@/hooks/useOnlineStatus'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-
-type LinkType = {
-    name: string,
-    icon: LucideIcon,
-    href: ViewType
-}
-const links: LinkType[] = [
-    {
-        name: "Messages",
-        icon: MessageCircleMore,
-        href: "chat"
-    },
-    {
-        name: "Contacts",
-        icon: Users2Icon,
-        href: "contacts"
-    },
-    {
-        name: "Calls",
-        icon: Phone,
-        href: "calls"
-    },
-    {
-        name: "Settings",
-        icon: Settings,
-        href: "settings"
-    }
-]
+import { links } from '@/data/sidebar'
 
 export default function Sidebar() {
     const { type, setView, setChat } = useViewStore()

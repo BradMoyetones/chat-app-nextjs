@@ -1,5 +1,4 @@
 'use client'
-// hooks/useAuth.ts
 import { createContext, useContext, useState, useEffect, Dispatch, SetStateAction } from "react"
 import api from "@/lib/axios"
 import { ConversationFull, MessageFull } from "@/types/database";

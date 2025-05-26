@@ -5,6 +5,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { ContactProvider } from "@/contexts/ContactContext";
+import { ConversationProvider } from "@/contexts/ConversationContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased overscroll-none h-screen overflow-hidden`}
       >
         <ThemeProvider
           attribute="class"
@@ -39,7 +41,11 @@ export default function RootLayout({
         >
           <TooltipProvider delayDuration={0}>
             <AuthProvider>
-              {children}
+                <ContactProvider>
+                  <ConversationProvider>
+                    {children}
+                  </ConversationProvider>
+                </ContactProvider>
             </AuthProvider>
           </TooltipProvider>
           <Toaster />

@@ -15,6 +15,7 @@ type ChatHeaderProps = {
 
 export default function ChatHeader({ conversation, isGroup }: ChatHeaderProps) {
     const {user} = useAuth()
+    
 
     const otherParticipants = isGroup && conversation ? getDisplayName(conversation, user) : null
     const otherParticipant = !isGroup && conversation ? conversation?.participants.find(p => p.userId !== user?.id)?.user : undefined
@@ -24,21 +25,22 @@ export default function ChatHeader({ conversation, isGroup }: ChatHeaderProps) {
     return (
         <header className="p-4 bg-background flex items-center justify-between z-10 border-b">
             <div className="flex items-center gap-2">
+                
                 <UserAvatar 
                     src="https://github.com/shadcn.png"
                     fallback={(otherParticipant?.firstName?.charAt(0)+""+otherParticipant?.lastName?.charAt(0)) || "GR"}
                     isOnline={isOnline}
-                    className="h-10 w-10"
+                    className="w-8 h-8 md:h-10 md:w-10"
                 />
                 <div>
                     <h1 className="font-bold line-clamp-1">{otherParticipant?.firstName || conversation?.title} {otherParticipant?.lastName || ""}</h1>
-                    <p className="text-xs flex items-center gap-1">
+                    <p className="text-xs flex items-center gap-1 md:max-w-96 max-w-40 line-clamp-1 truncate">
                         {/* {isOnline ? <span className="size-2 rounded-full bg-green-500 shrink-0" /> : <span className="size-2 rounded-full bg-red-500 shrink-0" />} */}
                         {!isGroup ? (isOnline ? "Online" : "Offline") : otherParticipants}
                     </p>
                 </div>
             </div>
-            <div className="space-x-2">
+            <div className="space-x-2 flex">
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Button size={"icon"} variant={"ghost"}>

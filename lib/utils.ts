@@ -46,3 +46,18 @@ export const getFormattedTime = (dateString?: string | null) => {
 
   return format(date, 'dd/MM/yyyy')
 }
+
+
+export const getMessageGroupDate = (dateString?: string | null) => {
+  if (!dateString) return ""
+
+  const date = parseISO(dateString)
+
+  if (isToday(date)) return "Today"
+  if (isYesterday(date)) return "Yesterday"
+
+  const daysDiff = differenceInDays(new Date(), date)
+  if (daysDiff <= 4) return format(date, 'EEEE') // Monday, etc.
+
+  return format(date, 'dd/MM/yyyy')
+}

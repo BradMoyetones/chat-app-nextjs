@@ -76,6 +76,79 @@
   --sidebar-accent-foreground: oklch(0.216 0.006 56.043);
   --sidebar-border: oklch(0.923 0.003 48.717);
   --sidebar-ring: oklch(0.709 0.01 56.259);
+
+  body, label {
+    cursor: url("/cursors/light/arrow.png"), auto;
+  }
+
+  /* Pointer (botones, links) */
+  button,
+  a,
+  [role="button"],
+  [role="menuitem"],
+  .cursor-pointer {
+    cursor: url("/cursors/light/hand.png"), pointer;
+  }
+
+  /* Texto seleccionable */
+  input[type="text"],
+  textarea,
+  [contenteditable],
+  .cursor-text {
+    cursor: url("/cursors/light/ibeam.png"), text;
+  }
+
+  /* Ayuda */
+  .help,
+  .cursor-help {
+    cursor: url("/cursors/light/help.png"), help;
+  }
+
+  /* No permitido */
+  .disabled,
+  [disabled],
+  .cursor-not-allowed {
+    cursor: url("/cursors/light/no.png"), not-allowed;
+  }
+
+  /* Movimiento */
+  .cursor-move {
+    cursor: url("/cursors/light/sizeall.png"), move;
+  }
+
+  /* Resize (varios) */
+  .cursor-ew-resize {
+    cursor: url("/cursors/light/sizewe.png"), ew-resize;
+  }
+  .cursor-ns-resize {
+    cursor: url("/cursors/light/sizens.png"), ns-resize;
+  }
+  .cursor-nesw-resize {
+    cursor: url("/cursors/light/sizenesw.png"), nesw-resize;
+  }
+  .cursor-nwse-resize {
+    cursor: url("/cursors/light/sizenwse.png"), nwse-resize;
+  }
+
+  /* Cruz (como para dibujar) */
+  .cursor-crosshair {
+    cursor: url("/cursors/light/crosshair.png"), crosshair;
+  }
+
+  /* Lápiz o edición */
+  .cursor-pencil {
+    cursor: url("/cursors/light/nwpen.png"), pointer;
+  }
+
+  /* Persona (ej: perfil) */
+  .cursor-person {
+    cursor: url("/cursors/light/person.png"), pointer;
+  }
+
+  /* Pin personalizado */
+  .cursor-pin {
+    cursor: url("/cursors/light/pin.png"), pointer;
+  }
 }
 
 .dark {
@@ -110,6 +183,81 @@
   --sidebar-accent-foreground: oklch(0.985 0.001 106.423);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.553 0.013 58.071);
+
+  /* Default cursor para todo el sitio */
+  body, label {
+    cursor: url("/cursors/dark/arrow.png"), auto;
+  }
+
+  /* Pointer (botones, links) */
+  button,
+  a,
+  [role="button"],
+  [role="menuitem"],
+  .cursor-pointer {
+    cursor: url("/cursors/dark/hand.png"), pointer;
+  }
+
+  /* Texto seleccionable */
+  input[type="text"],
+  textarea,
+  [contenteditable],
+  .cursor-text {
+    cursor: url("/cursors/dark/ibeam.png"), text;
+  }
+
+  /* Ayuda */
+  .help,
+  .cursor-help {
+    cursor: url("/cursors/dark/help.png"), help;
+  }
+
+  /* No permitido */
+  .disabled,
+  [disabled],
+  .cursor-not-allowed {
+    cursor: url("/cursors/dark/no.png"), not-allowed;
+  }
+
+  /* Movimiento */
+  .cursor-move {
+    cursor: url("/cursors/dark/sizeall.png"), move;
+  }
+
+  /* Resize (varios) */
+  .cursor-ew-resize {
+    cursor: url("/cursors/dark/sizewe.png"), ew-resize;
+  }
+  .cursor-ns-resize {
+    cursor: url("/cursors/dark/sizens.png"), ns-resize;
+  }
+  .cursor-nesw-resize {
+    cursor: url("/cursors/dark/sizenesw.png"), nesw-resize;
+  }
+  .cursor-nwse-resize {
+    cursor: url("/cursors/dark/sizenwse.png"), nwse-resize;
+  }
+
+  /* Cruz (como para dibujar) */
+  .cursor-crosshair {
+    cursor: url("/cursors/dark/crosshair.png"), crosshair;
+  }
+
+  /* Lápiz o edición */
+  .cursor-pencil {
+    cursor: url("/cursors/dark/nwpen.png"), pointer;
+  }
+
+  /* Persona (ej: perfil) */
+  .cursor-person {
+    cursor: url("/cursors/dark/person.png"), pointer;
+  }
+
+  /* Pin personalizado */
+  .cursor-pin {
+    cursor: url("/cursors/dark/pin.png"), pointer;
+  }
+
 }
 
 @layer base {

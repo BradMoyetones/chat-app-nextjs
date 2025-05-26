@@ -10,6 +10,7 @@ import socket from "@/lib/socket";
 interface AuthContextProps {
     user: User | null
     setUser: Dispatch<SetStateAction<User | null>>
+    logOut: () => void
 }
 const AuthContext = createContext<AuthContextProps | undefined>(undefined)
 
@@ -18,6 +19,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true)
     const router = useRouter()
     const pathname = usePathname()
+
+    const logOut = async() => {
+        try {
+            await api.post("/api/auth/logout")
+            router.replace("/login")
+        } catch (e){
+            console.log(e);   
+        }
+    }
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -60,7 +70,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 
     return (
-        <AuthContext.Provider value={{ user, setUser }}>
+        <AuthContext.Provider value={{ user, setUser, logOut }}>
             {children}
         </AuthContext.Provider>
     )
