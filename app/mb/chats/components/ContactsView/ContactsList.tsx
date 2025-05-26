@@ -76,11 +76,11 @@ export default function ContactsList() {
                                     return (
                                         <ContactCard 
                                             key={contact.id+"-card-contact-online"}
-                                            fallback={(contact.friend.firstName.charAt(0)+""+contact.friend.lastName.charAt(0)) || ""}
+                                            fallback={(contact.friend?.firstName.charAt(0)+""+contact.friend?.lastName.charAt(0)) || ""}
                                             isOnline={true}
                                             text={
                                                 <div>
-                                                    {contact.friend.firstName} {contact.friend.lastName}
+                                                    {contact.friend?.firstName} {contact.friend?.lastName}
                                                     <p className='text-xs text-muted-foreground'>Online</p>
                                                 </div>
                                             }
@@ -94,7 +94,7 @@ export default function ContactsList() {
                                                             className='cursor-pointer ml-auto'
                                                             onClick={() => {
                                                                 setOpenIC(prev => !prev)
-                                                                setParticipantId(contact.friend.id)
+                                                                setParticipantId(contact.friend?.id)
                                                             }}
                                                             disabled={loadingIds.has(contact.id)}
                                                         >
@@ -143,15 +143,15 @@ export default function ContactsList() {
                             </TabsContent>
                             <TabsContent value="all" className='space-y-2'>
                                 {filteredItems.length > 0 ? filteredItems.map((contact) => {
-                                    const isOnline = onlineFriends.includes(contact.friend.id)
+                                    const isOnline = onlineFriends.includes(contact.friend?.id)
                                     return (
                                         <ContactCard 
                                             key={contact.id+"-card-contact-all"}
-                                            fallback={(contact.friend.firstName.charAt(0)+""+contact.friend.lastName.charAt(0)) || ""}
+                                            fallback={(contact.friend?.firstName.charAt(0)+""+contact.friend?.lastName.charAt(0)) || ""}
                                             isOnline={isOnline}
                                             text={
                                                 <div>
-                                                    {contact.friend.firstName} {contact.friend.lastName}
+                                                    {contact.friend?.firstName} {contact.friend?.lastName}
                                                     <p className='text-xs text-muted-foreground'>{isOnline ? 'Online' : 'Offline'}</p>
                                                 </div>
                                             }
@@ -165,7 +165,7 @@ export default function ContactsList() {
                                                             className='cursor-pointer ml-auto'
                                                             onClick={() => {
                                                                 setOpenIC(prev => !prev)
-                                                                setParticipantId(contact.friend.id)
+                                                                setParticipantId(contact.friend?.id)
                                                             }}
                                                             disabled={loadingIds.has(contact.id)}
                                                         >
