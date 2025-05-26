@@ -1,3 +1,5 @@
+import { ContactProvider } from "@/contexts/ContactContext";
+import { ConversationProvider } from "@/contexts/ConversationContext";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -12,7 +14,11 @@ export default function RootLayout({
 }>) {
   return (
     <div>
-      {children}
+      <ContactProvider>
+        <ConversationProvider>
+          {children}
+        </ConversationProvider>
+      </ContactProvider>
     </div>
   );
 }

@@ -66,6 +66,20 @@ export default function VerifyEmailPage() {
             setIsLoading(false)
         }
     }
+
+    const resendCode = async () => {
+        try {
+            const res = await api.post("/api/auth/resend-verify-email")
+            toast.success(res.data.message)
+        } catch (err) {
+            const msg =
+            axios.isAxiosError(err) && err.response?.data?.error
+                ? err.response.data.error
+                : "Something went wrong"
+            toast.error(msg)
+        }
+    }
+
     return (
         <div className="flex h-screen w-full items-center justify-center">
             <Card className="w-full max-w-md">
@@ -104,6 +118,12 @@ export default function VerifyEmailPage() {
                                     </FormItem>
                                 )}
                             />
+                            <Button
+                                onClick={resendCode}
+                                variant={"link"}
+                            >
+                                Resend Verification code
+                            </Button>
                             <Button type="submit" disabled={isLoading}>
                                 {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
                                 Verify code

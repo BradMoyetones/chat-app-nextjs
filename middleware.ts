@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
 
-const accessSecret = new TextEncoder().encode(process.env.JWT_SECRET!)
+const accessSecret = new TextEncoder().encode(process.env.JWT_ACCESS_SECRET!)
 const verifyEmailSecret = new TextEncoder().encode(process.env.JWT_VERIFY_EMAIL_SECRET!)
 
 export async function middleware(req: NextRequest) {
@@ -16,7 +16,8 @@ export async function middleware(req: NextRequest) {
     path === '/favicon.ico' ||
     path === '/favicon.svg' ||
     path.startsWith('/api/public') ||
-    path.startsWith('/background_1.png')
+    path.startsWith('/background_1.png') ||
+    path.startsWith('/themes')
   ) {
     return NextResponse.next()
   }

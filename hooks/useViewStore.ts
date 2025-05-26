@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type ViewType = "chat" | "settings" | "profile" | "contacts" | "calls" | "none";
+export type ViewType = "chat" | "settings" | "profile" | "theme" | "contacts" | "calls" | "none";
 
 type Store = {
     type: ViewType;

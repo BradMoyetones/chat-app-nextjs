@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { toast } from "sonner"
+import axios from "axios"
 
 const FormSchema = z.object({
     firstName: z.string().min(1),
@@ -45,12 +46,24 @@ export default function RegisterPage() {
             const response = await api.post("/api/auth/register", data)
     
             toast.success(response.data.message)
-
             router.push("/verify-email")
+        }catch(error){
+            let errorMessage = "Something went wrong while sending the request."
             
-        }catch(e){
-            console.log(e);
-            
+            if (axios.isAxiosError(error) && error.response) {
+                const rawError = error.response.data.error
+
+                if (typeof rawError === "string") {
+                    errorMessage = rawError
+                } else if (Array.isArray(rawError)) {
+                    // Tomamos el primer mensaje zod
+                    errorMessage = rawError[0]?.message || errorMessage
+                } else if (typeof rawError === "object" && rawError?.message) {
+                    errorMessage = rawError.message
+                }
+            }
+
+            toast.error(errorMessage)
         }finally{
             setIsLoading(false)
         }

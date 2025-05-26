@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata: Metadata = {
     title: "Chat Auth - Brad",
@@ -12,8 +11,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <AuthProvider>
+        <div>
             {children}
-        </AuthProvider>
+        </div>
     );
 }

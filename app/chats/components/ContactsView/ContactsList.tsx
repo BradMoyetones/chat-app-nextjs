@@ -19,8 +19,6 @@ export default function ContactsList() {
 
     const [participantId, setParticipantId] = useState<number | null>(null)
 
-    console.log(filteredItems);
-    
     return (
         <>
             <ScrollArea className='h-screen'>

@@ -12,6 +12,8 @@ import { Icons } from "@/components/icons"
 import api from "@/lib/axios"
 import { useAuth } from "@/contexts/AuthContext"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import axios from "axios"
 
 export default function LoginPage() {
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -32,11 +34,33 @@ export default function LoginPage() {
             })
     
             setUser(response.data.user)
+            toast.success(response.data.message)
             router.push("/chats")
             
-        }catch(e){
-            console.log(e);
-            
+        }catch(error){
+            let errorMessage = "Something went wrong while sending the request."
+
+            if (axios.isAxiosError(error) && error.response) {
+                const data = error.response.data
+
+                if (data?.isVerified === false) {
+                    toast.info(data.message || "Please verify your email to continue.")
+                    router.push("/verify-email")
+                    return
+                }
+
+                const rawError = data.error
+
+                if (typeof rawError === "string") {
+                    errorMessage = rawError
+                } else if (Array.isArray(rawError)) {
+                    errorMessage = rawError[0]?.message || errorMessage
+                } else if (typeof rawError === "object" && rawError?.message) {
+                    errorMessage = rawError.message
+                }
+            }
+
+            toast.error(errorMessage)
         }finally{
             setIsLoading(false)
         }
