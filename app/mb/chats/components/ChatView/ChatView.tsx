@@ -319,7 +319,7 @@ export default function ChatView() {
                             <span className="sr-only">Emogis</span>
                         </Button>
                         {showPicker && (
-                            <div className="absolute bottom-10 right-0 mb-2 z-50">
+                            <div className="absolute bottom-10 mb-2 z-50">
                                 <Picker
                                     data={data}
                                     theme={theme}

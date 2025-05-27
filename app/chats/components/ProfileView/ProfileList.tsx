@@ -3,7 +3,6 @@ import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -20,6 +19,7 @@ const FormSchema = z
     .object({
         firstName: z.string().min(1, 'First name is required'),
         lastName: z.string().min(1, 'Last name is required'),
+        description: z.string().min(1, 'Description is required').optional(),
         password: z.string().min(6, 'Current password is required').optional(),
         newPassword: z.string().min(6, 'New password must be at least 6 characters').optional(),
         repeatPassword: z.string().min(6, 'Repeat password must be at least 6 characters').optional(),
@@ -71,7 +71,8 @@ export default function ProfileList() {
         if(!user) return
         form.reset({
             firstName: user.firstName,
-            lastName: user.lastName
+            lastName: user.lastName,
+            description: user.description || undefined,
         })
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user])
@@ -190,18 +191,27 @@ export default function ProfileList() {
                                     name="lastName"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>First Name</FormLabel>
+                                            <FormLabel>Last Name</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="First Name" {...field} />
+                                                <Input placeholder="Last Name" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
-                                <div className="space-y-2 col-span-2">
-                                    <Label>Descripción</Label>
-                                    <Textarea />
-                                </div>
+                                <FormField
+                                    control={form.control}
+                                    name="description"
+                                    render={({ field }) => (
+                                        <FormItem className="col-span-2">
+                                            <FormLabel>Description</FormLabel>
+                                            <FormControl>
+                                                <Textarea placeholder="Description" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                                 <div className="border rounded-xl col-span-2 p-2 space-y-2">
                                     <h1 className="font-bold text-xl">Change Password</h1>
                                     <FormField

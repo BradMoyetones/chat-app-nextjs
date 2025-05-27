@@ -1,6 +1,8 @@
+import { CallProvider } from "@/contexts/CallContext";
 import { ContactProvider } from "@/contexts/ContactContext";
 import { ConversationProvider } from "@/contexts/ConversationContext";
 import type { Metadata } from "next";
+import CallWindow from "./components/CallsView/CallWindow";
 
 export const metadata: Metadata = {
   title: "Chats - Brad",
@@ -16,7 +18,10 @@ export default function RootLayout({
     <div>
       <ContactProvider>
         <ConversationProvider>
-          {children}
+          <CallProvider>
+            {children}
+            <CallWindow />
+          </CallProvider>
         </ConversationProvider>
       </ContactProvider>
     </div>

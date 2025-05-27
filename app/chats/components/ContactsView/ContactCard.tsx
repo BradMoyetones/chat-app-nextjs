@@ -31,7 +31,7 @@ export default function ContactCard({
                     text
                 )}
             </div>
-            {actions && <div className="ml-auto space-x-2">{actions}</div>}
+            {actions && <div className="ml-auto space-x-2 shrink-0">{actions}</div>}
         </div>
     )
 }

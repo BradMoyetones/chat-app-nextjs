@@ -32,6 +32,8 @@ export default function Sidebar() {
         window.addEventListener("keydown", handleKeyDown)
         return () => window.removeEventListener("keydown", handleKeyDown)
     }, [setChat])
+
+    const image = process.env.NEXT_PUBLIC_API_URL+"/uploads/profile/"+user?.image
     
     return (
         <div className='relative flex flex-col justify-start items-center h-full w-full gap-2 p-4'>
@@ -76,7 +78,7 @@ export default function Sidebar() {
                 <DropdownMenu>
                     <DropdownMenuTrigger>
                         <UserAvatar 
-                            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/profile/${user?.image}`}
+                            src={image}
                             fallback={(user?.firstName?.charAt(0)+""+user?.lastName?.charAt(0)) || ""}
                             isOnline={isOnline}
                             className="h-10 w-10 cursor-pointer"

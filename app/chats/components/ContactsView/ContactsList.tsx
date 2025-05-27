@@ -1,7 +1,7 @@
 import HeaderList from '@/components/HeaderList'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Filter, MessageCircleMore, PlusCircle, Search, Trash2 } from 'lucide-react'
+import { Filter, MessageCircleMore, PhoneCall, PlusCircle, Search, Trash2 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -11,6 +11,7 @@ import Spinner from '@/components/Spinner'
 import { StartConversation } from './StartConversation'
 import ContactCard from './ContactCard'
 import { useContacts } from '@/contexts/ContactContext'
+import { useCall } from '@/contexts/CallContext'
 
 export default function ContactsList() {
     const { filteredItems, setFilter, searchQuery, setSearchQuery, loadingIds, deleteFriend, onlineFriends, acceptRequest } = useContacts()
@@ -18,6 +19,7 @@ export default function ContactsList() {
     const [openIC, setOpenIC] = useState(false)
 
     const [participantId, setParticipantId] = useState<number | null>(null)
+    const { handleCall } = useCall();
 
     return (
         <>
@@ -81,12 +83,30 @@ export default function ContactsList() {
                                             isOnline={true}
                                             text={
                                                 <div>
-                                                    {contact.friend?.firstName} {contact.friend?.lastName}
+                                                    <p className='line-clamp-1'>{contact.friend?.firstName} {contact.friend?.lastName}</p>
                                                     <p className='text-xs text-muted-foreground'>Online</p>
                                                 </div>
                                             }
                                             actions={
                                                 <>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            size={"sm"}
+                                                            className='cursor-pointer ml-auto'
+                                                            onClick={() => {
+                                                                handleCall(contact.friend?.id)
+                                                            }}
+                                                        >
+                                                            <PhoneCall />
+                                                            <span className='sr-only'>Start Call</span>
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        <p>Start Call</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
                                                         <Button
@@ -153,12 +173,32 @@ export default function ContactsList() {
                                             isOnline={isOnline}
                                             text={
                                                 <div>
-                                                    {contact.friend?.firstName} {contact.friend?.lastName}
+                                                    <p className='line-clamp-1'>{contact.friend?.firstName} {contact.friend?.lastName}</p>
                                                     <p className='text-xs text-muted-foreground'>{isOnline ? 'Online' : 'Offline'}</p>
                                                 </div>
                                             }
                                             actions={
                                                 <>
+                                                {isOnline && (
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Button
+                                                                variant={"outline"}
+                                                                size={"sm"}
+                                                                className='cursor-pointer ml-auto'
+                                                                onClick={() => {
+                                                                    handleCall(contact.friend?.id)
+                                                                }}
+                                                            >
+                                                                <PhoneCall />
+                                                                <span className='sr-only'>Start Call</span>
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent side="top">
+                                                            <p>Start Call</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                )}
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
                                                         <Button

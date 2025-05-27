@@ -3,7 +3,6 @@ import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,16 +10,20 @@ import { useViewStore } from "@/hooks/useViewStore";
 import api from "@/lib/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Smile } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import Picker from '@emoji-mart/react'
+import data from '@emoji-mart/data'
+import { useTheme } from "next-themes";
 
 const FormSchema = z
     .object({
         firstName: z.string().min(1, 'First name is required'),
         lastName: z.string().min(1, 'Last name is required'),
+        description: z.string().min(1, 'Description is required').optional(),
         password: z.string().min(6, 'Current password is required').optional(),
         newPassword: z.string().min(6, 'New password must be at least 6 characters').optional(),
         repeatPassword: z.string().min(6, 'Repeat password must be at least 6 characters').optional(),
@@ -56,6 +59,9 @@ const FormSchema = z
 })
 
 export default function ProfileList() {
+    const [showPicker, setShowPicker] = useState(false)
+    const { theme } = useTheme()
+    
     const {user, setUser} = useAuth()
     const {setView} = useViewStore()
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -73,7 +79,8 @@ export default function ProfileList() {
         if(!user) return
         form.reset({
             firstName: user.firstName,
-            lastName: user.lastName
+            lastName: user.lastName,
+            description: user.description || undefined,
         })
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user])
@@ -152,7 +159,7 @@ export default function ProfileList() {
                         </div>
                     </HeaderList>
 
-                    <div className='space-y-2 px-4 flex flex-col items-center pb-32'>
+                    <div className='space-y-2 px-4 flex flex-col items-center pb-48'>
                         <FormField
                             control={form.control}
                             name="image"
@@ -206,18 +213,53 @@ export default function ProfileList() {
                                 name="lastName"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>First Name</FormLabel>
+                                        <FormLabel>Last Name</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="First Name" {...field} />
+                                            <Input placeholder="Last Name" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
-                            <div className="space-y-2 col-span-2">
-                                <Label>Descripción</Label>
-                                <Textarea />
-                            </div>
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem className="col-span-2">
+                                        <FormLabel>Description</FormLabel>
+                                        <FormControl>
+                                            <div>
+                                                <Textarea placeholder="Description" {...field} />
+                                                <div className="relative">
+                                                    <Button
+                                                        type="button"
+                                                        variant={"ghost"}
+                                                        size={"icon"}
+                                                        onClick={() => setShowPicker(!showPicker)}
+                                                        className="absolute right-1 bottom-[1.5px] z-10 rounded-full"
+                                                    >
+                                                        <Smile />
+                                                        <span className="sr-only">Emogis</span>
+                                                    </Button>
+                                                    {showPicker && (
+                                                        <div className="absolute top-0 mb-2 z-50">
+                                                            <Picker
+                                                                data={data}
+                                                                theme={theme}
+                                                                onClickOutside={() => setShowPicker(false)}
+                                                                onEmojiSelect={(emoji: {native: string}) =>
+                                                                    field.onChange(field.value+emoji.native)
+                                                                }
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                             <div className="border rounded-xl col-span-2 p-2 space-y-2">
                                 <h1 className="font-bold text-xl">Change Password</h1>
                                 <FormField

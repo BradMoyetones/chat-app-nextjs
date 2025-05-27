@@ -11,6 +11,7 @@ export interface User {
     email: string;
     isVerified: boolean;
     image: string | null;
+    description: string | null;
     password: string;
     createdAt: string;
 };
