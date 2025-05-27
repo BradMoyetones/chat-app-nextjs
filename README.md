@@ -98,7 +98,7 @@ src/
 
 - Socket.IO client is initialized in a shared utility and listens/emits real-time events.
 
-- Zustand is used to manage auth state, conversations, socket connection, etc.
+- Zustand is used exclusively for conditional routing of components.
 
 - ShadCN provides elegant and accessible UI components throughout the app.
 
