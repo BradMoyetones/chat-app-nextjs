@@ -7,10 +7,10 @@ It includes a **responsive layout** with separate interfaces for desktop and mob
 
 ## 🚀 Tech Stack
 
-[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)  
-[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)  
-[![Zustand](https://img.shields.io/badge/Zustand-000000?style=for-the-badge&logo=zustand&logoColor=white)](https://github.com/pmndrs/zustand)  
-[![ShadCN UI](https://img.shields.io/badge/ShadCN_UI-blueviolet?style=for-the-badge)](https://ui.shadcn.dev/)  
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Zustand](https://img.shields.io/badge/Zustand-000000?style=for-the-badge&logo=zustand&logoColor=white)](https://github.com/pmndrs/zustand)
+[![ShadCN UI](https://img.shields.io/badge/ShadCN_UI-blueviolet?style=for-the-badge)](https://ui.shadcn.dev/)
 [![Socket.IO](https://img.shields.io/badge/Socket.IO-010101?style=for-the-badge&logo=socket.io&logoColor=white)](https://socket.io/)
 
 - **Next.js** – React framework for SSR, routing, and build optimization.
