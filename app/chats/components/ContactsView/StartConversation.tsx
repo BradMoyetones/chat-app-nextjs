@@ -198,6 +198,7 @@ export function StartConversation({ open, setOpen, participantId, setParticipant
                                 return (
                                     <ContactCard 
                                         key={contact.id+"-card-contact-selected"}
+                                        src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/profile/${contact.friend.image}`}
                                         fallback={(contact.friend.firstName.charAt(0)+""+contact.friend.lastName.charAt(0)) || ""}
                                         text={contact.friend.firstName+" "+contact.friend.lastName}
                                         actions={
@@ -249,6 +250,7 @@ export function StartConversation({ open, setOpen, participantId, setParticipant
                         return (
                             <ContactCard 
                                 key={contact.id+"-card-contact-select"}
+                                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/profile/${contact.friend.image}`}
                                 fallback={(contact.friend.firstName.charAt(0)+""+contact.friend.lastName.charAt(0)) || ""}
                                 text={contact.friend.firstName+" "+contact.friend.lastName}
                                 actions={

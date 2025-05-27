@@ -143,7 +143,7 @@ export function SearchUserModal({open, setOpen}: {open: boolean, setOpen: Dispat
                         return (
                             <CommandItem key={user.id + "-item-search"}>
                                 <UserAvatar 
-                                    src="https://github.com/shadcn.png"
+                                    src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/profile/${user.image}`}
                                     fallback={(user.firstName.charAt(0)+""+user.lastName.charAt(0)) || ""}
                                 />
                                 <span>{user.firstName} {user.lastName}</span>

@@ -26,8 +26,8 @@ export function UserAvatar({
 
     return (
         <div className="relative inline-block">
-            <Avatar className={cn(className)} {...props}>
-                <AvatarImage src={src || "/placeholder.svg"} alt={`${fallback}'s avatar`} loading="lazy" />
+            <Avatar className={cn("text-primary", className)} {...props}>
+                <AvatarImage src={src || "/placeholder.svg"} alt={`${fallback}'s avatar`} loading="lazy" className="object-cover object-center" />
                 <AvatarFallback>{fallback}</AvatarFallback>
             </Avatar>
             {isOnline !== undefined && (

@@ -27,7 +27,7 @@ export default function ChatHeader({ conversation, isGroup }: ChatHeaderProps) {
             <div className="flex items-center gap-2">
                 
                 <UserAvatar 
-                    src="https://github.com/shadcn.png"
+                    src={`${conversation?.isGroup ? "" : process.env.NEXT_PUBLIC_API_URL+"/uploads/profile/"+otherParticipant?.image}`}
                     fallback={(otherParticipant?.firstName?.charAt(0)+""+otherParticipant?.lastName?.charAt(0)) || "GR"}
                     isOnline={isOnline}
                     className="w-8 h-8 md:h-10 md:w-10"

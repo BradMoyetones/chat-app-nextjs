@@ -76,6 +76,7 @@ export default function ContactsList() {
                                     return (
                                         <ContactCard 
                                             key={contact.id+"-card-contact-online"}
+                                            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/profile/${contact.friend?.image}`}
                                             fallback={(contact.friend?.firstName.charAt(0)+""+contact.friend?.lastName.charAt(0)) || ""}
                                             isOnline={true}
                                             text={
@@ -147,6 +148,7 @@ export default function ContactsList() {
                                     return (
                                         <ContactCard 
                                             key={contact.id+"-card-contact-all"}
+                                            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/profile/${contact.friend?.image}`}
                                             fallback={(contact.friend?.firstName.charAt(0)+""+contact.friend?.lastName.charAt(0)) || ""}
                                             isOnline={isOnline}
                                             text={
@@ -216,6 +218,7 @@ export default function ContactsList() {
                                 {filteredItems.length > 0 ? filteredItems.map((request) => (
                                     <ContactCard 
                                         key={request.id+"-card-contact-pending"}
+                                        src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/profile/${request.sender.image}`}
                                         fallback={(request.sender.firstName.charAt(0)+""+request.sender.lastName.charAt(0)) || ""}
                                         text={request.sender.firstName+" "+request.sender.lastName}
                                         actions={

@@ -35,8 +35,8 @@ export default function ChatListItem({ conversation, isActive, onClick, isTyping
             onClick={() => onClick(id)}
         >
             <UserAvatar 
-                src="https://github.com/shadcn.png"
-                fallback={(otherParticipant?.firstName?.charAt(0)+""+otherParticipant?.lastName?.charAt(0)) || ""}
+                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/profile/${otherParticipant?.image}`}
+                fallback={(otherParticipant?.firstName.charAt(0)+""+otherParticipant?.lastName.charAt(0)) || ""}
                 isOnline={!conversation.isGroup ? isOnline : undefined}
                 className="h-10 w-10"
             />

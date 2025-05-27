@@ -298,10 +298,10 @@ export default function ChatView() {
                         onInput={handleInput}
                         onKeyDown={(e) => {
                             if (e.key === "Enter" && !e.shiftKey && !e.altKey) {
-                            e.preventDefault()
-                            if (messageContent.trim()) {
-                                handleSendMessage(e)
-                            }
+                                e.preventDefault()
+                                if (messageContent.trim()) {
+                                    handleSendMessage(e)
+                                }
                             }
                         }}
                     >

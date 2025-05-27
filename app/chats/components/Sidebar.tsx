@@ -76,7 +76,7 @@ export default function Sidebar() {
                 <DropdownMenu>
                     <DropdownMenuTrigger>
                         <UserAvatar 
-                            src="https://github.com/shadcn.png"
+                            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/profile/${user?.image}`}
                             fallback={(user?.firstName?.charAt(0)+""+user?.lastName?.charAt(0)) || ""}
                             isOnline={isOnline}
                             className="h-10 w-10 cursor-pointer"

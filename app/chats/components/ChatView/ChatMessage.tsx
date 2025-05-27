@@ -26,16 +26,16 @@ export function ChatMessage({ message, currentUser, participants, isLastInSequen
   
     return (
         <div className={cn("group flex items-end gap-2", isMe ? "flex-row-reverse" : "flex-row")}>
-            {!isMe && isLastInSequence && (
+            {!isMe && isLastInSequence && participants.length > 2 && (
                 <UserAvatar 
-                    src="https://github.com/shadcn.png"
+                    src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/profile/${sender?.user.image}`}
                     fallback={(sender?.user.firstName.charAt(0)+""+sender?.user.lastName.charAt(0))}
                     className="h-8 w-8"
                     isOnline={isOnline}
                 />
             )}
 
-            {!isMe && !isLastInSequence && <div className="w-8" />}
+            {!isMe && !isLastInSequence && participants.length > 2 && <div className="w-8" />}
 
             <div
                 className={cn(

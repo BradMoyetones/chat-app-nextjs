@@ -134,7 +134,7 @@ export default function RegisterPage() {
                                     <FormItem>
                                         <FormLabel>Password</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Password" {...field} />
+                                            <Input placeholder="Password" {...field} type="password" />
                                         </FormControl>
                                         <FormDescription>
                                             This is your password.

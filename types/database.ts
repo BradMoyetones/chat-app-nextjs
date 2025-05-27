@@ -9,6 +9,8 @@ export interface User {
     firstName: string;
     lastName: string;
     email: string;
+    isVerified: boolean;
+    image: string | null;
     password: string;
     createdAt: string;
 };

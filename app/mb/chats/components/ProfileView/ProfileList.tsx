@@ -25,18 +25,16 @@ const FormSchema = z
         newPassword: z.string().min(6, 'New password must be at least 6 characters').optional(),
         repeatPassword: z.string().min(6, 'Repeat password must be at least 6 characters').optional(),
         image: z
-            .any()
+            .instanceof(File)
             .optional()
-            .refine(
-                (file) => {
-                    if (!file) return true
-                    return file instanceof File && file.size < 5 * 1024 * 1024 // < 5MB
-                },
-                {
-                    message: 'Image must be less than 5MB',
-                    path: ['image'],
-                }
-            ),
+            .nullable()
+            .refine((file) => {
+                if (!file) return true
+                return file.size <= 5 * 1024 * 1024 // 5MB
+            }, {
+                message: "Image must be less than 5MB",
+                path: ["image"]
+            }),
     })
     .refine(data => {
         if (data.newPassword || data.repeatPassword) {
@@ -61,7 +59,8 @@ export default function ProfileList() {
     const {user, setUser} = useAuth()
     const {setView} = useViewStore()
     const [isLoading, setIsLoading] = useState<boolean>(false)
-
+    const [preview, setPreview] = useState<string | null>(null)
+    
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -80,8 +79,8 @@ export default function ProfileList() {
     }, [user])
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
-        console.log(data);
-        return
+        // console.log(data);
+        // return
         
         setIsLoading(true)
         try {
@@ -154,17 +153,18 @@ export default function ProfileList() {
                     </HeaderList>
 
                     <div className='space-y-2 px-4 flex flex-col items-center pb-32'>
-                        <UserAvatar 
-                            src="https://github.com/shadcn.png"
-                            fallback={(user?.firstName?.charAt(0)+""+user?.lastName?.charAt(0)) || ""}
-                            className="h-24 w-24 cursor-pointer"
-                        />
                         <FormField
                             control={form.control}
                             name="image"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Profile Image</FormLabel>
+                                    <FormLabel>
+                                        <UserAvatar 
+                                            src={preview || `${process.env.NEXT_PUBLIC_API_URL}/uploads/profile/${user?.image}`}
+                                            fallback={(user?.firstName?.charAt(0)+""+user?.lastName?.charAt(0)) || ""}
+                                            className="h-24 w-24 cursor-pointer"
+                                        />
+                                    </FormLabel>
                                     <FormControl>
                                         <input
                                             type="file"
@@ -172,7 +172,15 @@ export default function ProfileList() {
                                             onChange={(e) => {
                                                 const file = e.target.files?.[0]
                                                 field.onChange(file)
+
+                                                if (file) {
+                                                    const url = URL.createObjectURL(file)
+                                                    setPreview(url)
+                                                } else {
+                                                    setPreview(null)
+                                                }
                                             }}
+                                            hidden
                                         />
                                     </FormControl>
                                     <FormMessage />
