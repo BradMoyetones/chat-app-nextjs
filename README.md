@@ -54,7 +54,7 @@ npm install
 Create a `.env` file and set the API base URL and any other required environment variables. For example:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3001/api
+NEXT_PUBLIC_API_URL=http://localhost:3003
 ```
 
 4. **Run the development server:**
