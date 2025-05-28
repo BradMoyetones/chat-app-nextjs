@@ -1,8 +1,8 @@
-import { CallProvider } from "@/contexts/CallContext";
 import { ContactProvider } from "@/contexts/ContactContext";
 import { ConversationProvider } from "@/contexts/ConversationContext";
 import type { Metadata } from "next";
 import CallWindow from "./components/CallsView/CallWindow";
+import { CallProvider } from "@/contexts/CallContext";
 
 export const metadata: Metadata = {
   title: "Chats - Brad",

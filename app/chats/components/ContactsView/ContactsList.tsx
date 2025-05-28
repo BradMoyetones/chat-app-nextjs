@@ -19,7 +19,7 @@ export default function ContactsList() {
     const [openIC, setOpenIC] = useState(false)
 
     const [participantId, setParticipantId] = useState<number | null>(null)
-    const { handleCall } = useCall();
+    const { startCall } = useCall();
 
     return (
         <>
@@ -96,7 +96,7 @@ export default function ContactsList() {
                                                             size={"sm"}
                                                             className='cursor-pointer ml-auto'
                                                             onClick={() => {
-                                                                handleCall(contact.friend?.id)
+                                                                startCall(contact.friend?.id)
                                                             }}
                                                         >
                                                             <PhoneCall />
@@ -187,7 +187,7 @@ export default function ContactsList() {
                                                                 size={"sm"}
                                                                 className='cursor-pointer ml-auto'
                                                                 onClick={() => {
-                                                                    handleCall(contact.friend?.id)
+                                                                    startCall(contact.friend?.id)
                                                                 }}
                                                             >
                                                                 <PhoneCall />

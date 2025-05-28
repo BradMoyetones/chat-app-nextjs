@@ -1,274 +1,416 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
-import { createContext, useContext, useEffect, useRef, useState } from "react"
-import { useAuth } from "./AuthContext"
-import socket from "@/lib/socket"
+import {
+    createContext,
+    useContext,
+    useRef,
+    useState,
+    useEffect,
+    ReactNode,
+} from 'react'
+import * as mediasoupClient from 'mediasoup-client'
+import socket from '@/lib/socket'
+import { useAuth } from './AuthContext'
+import { MediaKind, RtpParameters, TransportOptions } from 'mediasoup-client/types'
 
-type IncomingCall = { from: number }
+// Tipos
+type CallState = 'idle' | 'calling' | 'incoming' | 'in-call' | 'ended'
+
+interface ConsumeResponse {
+    id: string
+    producerId: string
+    kind: MediaKind
+    rtpParameters: RtpParameters
+    error?: string
+}
+
+interface RouterRtpCapabilities {
+  // pon aquí la estructura que devuelve mediasoup (puedes importarla de mediasoup-client)
+  [key: string]: unknown
+}
+
+type CreateTransportResponse = TransportOptions
+
+type ProduceResponse = { id: string } | { error: string }
+
+
 
 interface CallContextType {
-    incomingCall: IncomingCall | null
-    callActive: boolean
-    localStream: MediaStream | null
-    localVideoRef: React.RefObject<HTMLVideoElement | null>
-    remoteVideoRef: React.RefObject<HTMLVideoElement | null>
-    handleCall: (targetUserId: number) => void
+    callState: CallState
+    remoteUserId: number | null
+    startCall: (targetUserId: number) => void
     acceptCall: () => void
     rejectCall: () => void
     endCall: () => void
+    localVideoRef: React.RefObject<HTMLVideoElement | null>
+    remoteVideoRef: React.RefObject<HTMLVideoElement | null>
 }
 
-const CallContext = createContext<CallContextType>({} as CallContextType)
+const CallContext = createContext<CallContextType | null>(null)
 
-export function CallProvider({ children }: { children: React.ReactNode }) {
-    const { user } = useAuth()
-    const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null)
-    const [callActive, setCallActive] = useState(false)
-    const [peerConnection, setPeerConnection] = useState<RTCPeerConnection | null>(null)
-    const [localStream, setLocalStream] = useState<MediaStream | null>(null)
-    const iceCandidatesQueue = useRef<RTCIceCandidate[]>([])
-    const [lastPeerId, setLastPeerId] = useState<number | null>(null)
+export function useCall() {
+    const ctx = useContext(CallContext)
+    if (!ctx) throw new Error('useCall must be used within CallProvider')
+    return ctx
+}
 
+export function CallProvider({ children }: { children: ReactNode }) {
+    const {user} = useAuth()
+    const [callState, setCallState] = useState<CallState>('idle')
+    const [remoteUserId, setRemoteUserId] = useState<number | null>(null)
+
+    const deviceRef = useRef<mediasoupClient.Device | null>(null)
+    const sendTransportRef = useRef<mediasoupClient.types.Transport | null>(null)
+    const recvTransportRef = useRef<mediasoupClient.types.Transport | null>(null)
+    const producerRef = useRef<mediasoupClient.types.Producer | null>(null)
+    const consumerRef = useRef<mediasoupClient.types.Consumer | null>(null)
+    const localStreamRef = useRef<MediaStream | null>(null)
+    const remoteStreamRef = useRef<MediaStream | null>(null)
+
+    const pendingProducersRef = useRef<{ producerId: string; kind: string }[]>([])
+
+
+    // Video elements refs
     const localVideoRef = useRef<HTMLVideoElement>(null)
     const remoteVideoRef = useRef<HTMLVideoElement>(null)
 
-    // 🔹 Obtener stream local y mostrar en video
-    const getLocalStream = async (): Promise<MediaStream> => {
-        if (localStream) return localStream
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-            setLocalStream(stream)
-        if (localVideoRef.current) {
-            localVideoRef.current.srcObject = stream
-        }
-        return stream
-    }
-
-    // 🔹 Crear conexión WebRTC con handlers
-    const createPeerConnection = ({
-        targetUserId,
-        stream,
-        onTrack,
-    }: {
-        targetUserId: number
-        stream: MediaStream
-        onTrack: (remoteStream: MediaStream) => void
-    }): RTCPeerConnection => {
-        const pc = new RTCPeerConnection()
-
-        pc.onicecandidate = (event) => {
-            if (event.candidate) {
-                socket.emit("webrtc:ice-candidate", { targetUserId, candidate: event.candidate })
-            }
-        }
-
-        pc.ontrack = (event) => {
-            const [remoteStream] = event.streams
-            if (remoteStream) {
-                console.log("[ontrack] remote stream received")
-                onTrack(remoteStream)
-            }
-        }
-
-        stream.getTracks().forEach(track => pc.addTrack(track, stream))
-        setLastPeerId(targetUserId)
-
-        return pc
-    }
-
-    // SOCKET LISTENERS
     useEffect(() => {
-        socket.on("call:incoming", ({ from }) => {
-            setIncomingCall({ from })
+
+        socket.on('call:incoming', ({ from }) => {
+            setRemoteUserId(from)
+            setCallState('incoming')
         })
 
-        socket.on("call:accepted", async ({ from }) => {
-            if (!user?.id) return
-            const stream = await getLocalStream()
-            const pc = createPeerConnection({
-                targetUserId: from,
-                stream,
-                onTrack: (remoteStream) => {
-                    if (remoteVideoRef.current) {
-                        remoteVideoRef.current.srcObject = remoteStream
-                    }
-                },
-            })
-            setPeerConnection(pc)
+        socket.on('mediasoup:nuevo-producer', async ({ producerId, kind }) => {
+            console.log('Nuevo producer recibido', producerId, kind)
+            const device = deviceRef.current
+            const recvTransport = recvTransportRef.current
 
-            const offer = await pc.createOffer()
-            await pc.setLocalDescription(offer)
-            socket.emit("webrtc:offer", { targetUserId: from, offer })
-
-            setCallActive(true) // llamada activa cuando aceptan
-            setIncomingCall(null) // limpio llamada entrante
-        })
-
-
-        socket.on("call:rejected", () => {
-            setIncomingCall(null)
-            setPeerConnection(null)
-            setCallActive(false)
-        })
-
-        socket.on("call:ended", () => {
-            if (peerConnection) peerConnection.close()
-            setPeerConnection(null)
-            setIncomingCall(null)
-            setCallActive(false)
-            if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null
-            if (localVideoRef.current) localVideoRef.current.srcObject = null
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop())
-                setLocalStream(null)
+            if (!device || !recvTransport) {
+                console.warn('Transporte no listo aún, guardando producer en espera')
+                pendingProducersRef.current.push({ producerId, kind })
+                return
             }
-        })
 
+            await consumeProducer(producerId)
 
-        return () => {
-            socket.off("call:incoming")
-            socket.off("call:accepted")
-            socket.off("call:rejected")
-            socket.off("call:ended")
-        }
-    }, [user, peerConnection, incomingCall])
-
-    // 🔹 Escuchar oferta, respuesta e ICE
-    useEffect(() => {
-        if (!user?.id) return
-
-        socket.on("webrtc:offer", async ({ from, offer }) => {
-            const stream = await getLocalStream()
-            const pc = createPeerConnection({
-                targetUserId: from,
-                stream,
-                onTrack: (remoteStream) => {
-                    if (remoteVideoRef.current) {
-                        remoteVideoRef.current.srcObject = remoteStream
-                    }
-                },
-            })
-            setPeerConnection(pc)
-
-            await pc.setRemoteDescription(new RTCSessionDescription(offer))
-
-            for (const candidate of iceCandidatesQueue.current) {
-                await pc.addIceCandidate(candidate)
+            const rtpCapabilities = deviceRef.current?.rtpCapabilities
+            if (!rtpCapabilities || !recvTransportRef.current) {
+                console.error('No hay capacidades RTP o transporte de recepción')
+                return
             }
-            iceCandidatesQueue.current = []
 
-            const answer = await pc.createAnswer()
-            await pc.setLocalDescription(answer)
-            socket.emit("webrtc:answer", { targetUserId: from, answer })
-            setCallActive(true)
-            setIncomingCall(null)
-        })
-
-        socket.on("webrtc:answer", async ({ answer }) => {
-            if (peerConnection) {
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(answer))
-                for (const candidate of iceCandidatesQueue.current) {
-                    await peerConnection.addIceCandidate(candidate)
+            // Consumir el nuevo producer
+            socket.emit('mediasoup:consume', {
+                producerId,
+                transportId: recvTransportRef.current.id,
+                rtpCapabilities,
+            }, async (response: ConsumeResponse) => {
+                if (response?.error) {
+                    console.error('Error consumiendo:', response.error)
+                    return
                 }
-                iceCandidatesQueue.current = []
-            }
-        })
 
-        socket.on("webrtc:ice-candidate", async ({ candidate }) => {
-            const iceCandidate = new RTCIceCandidate(candidate)
-            if (peerConnection?.remoteDescription) {
-                await peerConnection.addIceCandidate(iceCandidate)
-            } else {
-                iceCandidatesQueue.current.push(iceCandidate)
-            }
-        })
+                const { id, kind, rtpParameters } = response
 
-        return () => {
-            socket.off("webrtc:offer")
-            socket.off("webrtc:answer")
-            socket.off("webrtc:ice-candidate")
-        }
-    }, [user, peerConnection, localStream])
+                if (!id || !kind || !rtpParameters) {
+                    console.error('Respuesta incompleta del consume')
+                    return
+                }
 
-    // 🔹 Llamar a usuario
-    const handleCall = async (targetUserId: number) => {
-        if (!user?.id) return
-        const stream = await getLocalStream()
-        const pc = createPeerConnection({
-        targetUserId,
-        stream,
-        onTrack: (remoteStream) => {
-            if (remoteVideoRef.current) {
-            remoteVideoRef.current.srcObject = remoteStream
-            }
-        },
-        })
-        setPeerConnection(pc)
-        socket.emit("call:user", { targetUserId, from: user.id })
-        setCallActive(true)
-    }
+                const consumer = await recvTransportRef.current!.consume({
+                    id,
+                    producerId,
+                    kind,
+                    rtpParameters,
+                })
 
-    // 🔹 Aceptar llamada
-    const acceptCall = async () => {
-        if (!incomingCall || !user?.id) return
-        const stream = await getLocalStream()
-        const pc = createPeerConnection({
-            targetUserId: incomingCall.from,
-            stream,
-            onTrack: (remoteStream) => {
+                consumerRef.current = consumer
+
+                // Crear MediaStream para el video remoto
+                const remoteStream = new MediaStream()
+                remoteStream.addTrack(consumer.track)
+                remoteStreamRef.current = remoteStream
+
                 if (remoteVideoRef.current) {
                     remoteVideoRef.current.srcObject = remoteStream
                 }
-            },
+            })
         })
-        setPeerConnection(pc)
-        socket.emit("call:accept", { to: incomingCall.from })
-        setCallActive(true)
-        setIncomingCall(null)
+
+        socket.on('call:accepted', ({ from }) => {
+            setRemoteUserId(from)
+            setCallState('in-call')
+            startMediasoup()
+        })
+
+        socket.on('call:rejected', () => {
+            alert('Llamada rechazada')
+            resetCall()
+        })
+
+        socket.on('call:ended', () => {
+            alert('Llamada terminada')
+            resetCall()
+        })
+
+        return () => {
+            socket.off('call:incoming')
+            socket.off('call:accepted')
+            socket.off('call:rejected')
+            socket.off('call:ended')
+            socket.off('mediasoup:nuevo-producer')
+            
+        }
+    }, [user])
+
+    async function consumeProducer(producerId: string) {
+        const device = deviceRef.current
+        const recvTransport = recvTransportRef.current
+
+        if (!device || !recvTransport || !socket) return
+
+        socket.emit('mediasoup:consume', {
+            producerId,
+            transportId: recvTransport.id,
+            rtpCapabilities: device.rtpCapabilities,
+        }, async (response: ConsumeResponse) => {
+            if (response?.error) {
+                console.error('Error consumiendo:', response.error)
+                return
+            }
+
+            const { id, kind, rtpParameters } = response
+
+            if (!id || !kind || !rtpParameters) {
+                console.error('Respuesta incompleta del consume')
+                return
+            }
+
+            const consumer = await recvTransport.consume({
+                id,
+                producerId,
+                kind,
+                rtpParameters,
+            })
+
+            consumerRef.current = consumer
+
+            const remoteStream = new MediaStream()
+            remoteStream.addTrack(consumer.track)
+            remoteStreamRef.current = remoteStream
+
+            if (remoteVideoRef.current) {
+                remoteVideoRef.current.srcObject = remoteStream
+            }
+        })
+    }
+
+
+    // Función para iniciar llamada a otro usuario
+    function startCall(targetUserId: number) {
+        if (!socket) return
+        socket.emit('call:user', { targetUserId, from: user?.id })
+        setRemoteUserId(targetUserId)
+        setCallState('calling')
+    }
+
+    // Aceptar llamada entrante
+    function acceptCall() {
+        if (!socket || !remoteUserId) return
+        socket.emit('call:accept', { to: remoteUserId })
+        setCallState('in-call')
+        startMediasoup()
     }
 
     // Rechazar llamada
-    const rejectCall = () => {
-        if (!incomingCall) return
-        socket.emit("call:reject", { to: incomingCall.from })
-        setIncomingCall(null)
-        setPeerConnection(null)
+    function rejectCall() {
+        if (!socket || !remoteUserId) return
+        socket.emit('call:reject', { to: remoteUserId })
+        resetCall()
     }
 
-    const endCall = () => {
-        if (!user?.id || !peerConnection) return
-        peerConnection.close()
-        setPeerConnection(null)
-        setIncomingCall(null)
-        setCallActive(false)
-        if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null
-        if (localVideoRef.current) localVideoRef.current.srcObject = null
-        if (localStream) {
-            localStream.getTracks().forEach(track => track.stop())
-            setLocalStream(null)
+    // Terminar llamada
+    function endCall() {
+        if (!socket || !remoteUserId) return
+        socket.emit('call:end', { targetUserId: remoteUserId })
+        resetCall()
+    }
+
+    // Resetear todo
+    function resetCall() {
+        setCallState('idle')
+        setRemoteUserId(null)
+
+        if (producerRef.current) {
+            producerRef.current.close()
+            producerRef.current = null
         }
-        socket.emit("call:end", { targetUserId: lastPeerId }) // ahora vemos esto
+
+        if (consumerRef.current) {
+            consumerRef.current.close()
+            consumerRef.current = null
+        }
+
+        if (sendTransportRef.current) {
+            sendTransportRef.current.close()
+            sendTransportRef.current = null
+        }
+
+        if (recvTransportRef.current) {
+            recvTransportRef.current.close()
+            recvTransportRef.current = null
+        }
+
+        if (localStreamRef.current) {
+            localStreamRef.current.getTracks().forEach(t => t.stop())
+            localStreamRef.current = null
+        }
+
+        if (remoteStreamRef.current) {
+            remoteStreamRef.current.getTracks().forEach(t => t.stop())
+            remoteStreamRef.current = null
+        }
+
+        if (localVideoRef.current) localVideoRef.current.srcObject = null
+        if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null
     }
 
+    async function startMediasoup() {
+
+        // Obtener capacidades RTP del router
+        const rtpCapabilities: RouterRtpCapabilities = await new Promise((resolve) => {
+            socket.emit('mediasoup:getRouterRtpCapabilities', null, (data: RouterRtpCapabilities) => {
+                resolve(data)
+            })
+        })
+
+
+        const device = new mediasoupClient.Device()
+        await device.load({ routerRtpCapabilities: rtpCapabilities })
+        deviceRef.current = device
+
+        // Crear transporte de envío (send)
+        const sendTransportParams: CreateTransportResponse = await new Promise((resolve) => {
+            socket.emit('mediasoup:crear-transporte', { roomId: 'default' }, ({params}:{params: CreateTransportResponse}) => {
+                resolve(params)
+            })
+        })
+
+        const sendTransport = device.createSendTransport(sendTransportParams)
+
+        sendTransport.on('connect', ({ dtlsParameters }, callback, errback) => {
+            socket.emit('mediasoup:conectar-transporte', { dtlsParameters, transportId: sendTransport.id }, (res: { error?: Error }) => {
+                if (res.error) errback(res.error)
+                else callback()
+            })
+        })
+
+
+        sendTransport.on('produce', async ({ kind, rtpParameters }, callback, errback) => {
+            socket.emit(
+                'mediasoup:produce',
+                { transportId: sendTransport.id, kind, rtpParameters },
+                (res: ProduceResponse) => {
+                    if ('error' in res) errback(new Error(res.error))
+                    else callback({ id: res.id })
+                }
+            )
+        })
+
+
+        sendTransportRef.current = sendTransport
+
+        // Obtener stream local
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+        localStreamRef.current = stream
+        if (localVideoRef.current) localVideoRef.current.srcObject = stream
+
+        // Producir cada track
+        for (const track of stream.getTracks()) {
+            producerRef.current = await sendTransport.produce({ track })
+        }
+
+        // Crear transporte de recepción (recv)
+        const recvTransportParams: CreateTransportResponse = await new Promise((resolve) => {
+            socket.emit('mediasoup:crear-transporte', { roomId: 'default' }, ({params}: {params: CreateTransportResponse}) => {
+                resolve(params)
+            })
+        })
+
+        const recvTransport = device.createRecvTransport(recvTransportParams)
+
+        recvTransport.on('connect', ({ dtlsParameters }, callback, errback) => {
+            socket.emit(
+                'mediasoup:conectar-transporte',
+                { dtlsParameters, transportId: recvTransport.id },
+                (res: { error?: string }) => {
+                    if (res?.error) errback(new Error(res.error))
+                    else callback()
+                }
+            )
+        })
+
+
+        recvTransportRef.current = recvTransport
+
+        // Crear stream remoto vacío
+        const remoteStream = new MediaStream()
+        remoteStreamRef.current = remoteStream
+        if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream
+
+        // Escuchar cuando el otro usuario empieza a producir
+        socket.on('mediasoup:nuevo-producer', async ({ producerId, kind }) => {
+            if (!device.canProduce(kind)) return console.warn('Device no puede consumir ese tipo:', kind)
+
+            const consumerParams: ConsumeResponse = await new Promise((resolve) => {
+                socket.emit('mediasoup:consume', {
+                    producerId,
+                    transportId: recvTransport.id,
+                    rtpCapabilities: device.rtpCapabilities,
+                }, (params: ConsumeResponse) => {
+                    resolve(params)
+                })
+            })
+
+            // Verifica si tiene error
+            if ('error' in consumerParams) {
+                console.error('Error al consumir:', consumerParams.error)
+                return
+            }
+
+            const consumer = await recvTransport.consume({
+                id: consumerParams.id,
+                producerId: consumerParams.producerId,
+                kind: consumerParams.kind,
+                rtpParameters: consumerParams.rtpParameters,
+            })
+
+            consumerRef.current = consumer
+            remoteStream.addTrack(consumer.track)
+        })
+
+
+        // Consumir producers pendientes
+        for (const { producerId } of pendingProducersRef.current) {
+            await consumeProducer(producerId)
+        }
+        pendingProducersRef.current = []
+
+    }
 
     return (
         <CallContext.Provider value={{
-            incomingCall,
-            callActive,
-            localStream,
-            localVideoRef,
-            remoteVideoRef,
-            handleCall,
+            callState,
+            remoteUserId,
+            startCall,
             acceptCall,
             rejectCall,
-            endCall
+            endCall,
+            localVideoRef,
+            remoteVideoRef,
         }}>
             {children}
         </CallContext.Provider>
     )
-}
-
-export const useCall = () => {
-    const context = useContext(CallContext)
-    if (!context) throw new Error("useCall must be used within an CallProvider")
-    return context
 }

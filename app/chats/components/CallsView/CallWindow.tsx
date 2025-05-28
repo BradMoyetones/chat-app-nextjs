@@ -1,27 +1,20 @@
 'use client'
-/* eslint-disable @next/next/no-img-element */
 
 import { useEffect, useRef, useState } from "react";
 import { useCall } from "@/contexts/CallContext";
-import { useContacts } from "@/contexts/ContactContext";
 
 export default function CallWindow() {
-  const { contacts } = useContacts();
   const {
-    localStream,
-    incomingCall,
     localVideoRef,
     remoteVideoRef,
     acceptCall,
     rejectCall,
     endCall,
-    callActive,
+    callState
   } = useCall();
 
   const [isLocalMain, setIsLocalMain] = useState(false);
 
-  // Buscar quién llama
-  const caller = contacts.find((c) => c.friend.id === incomingCall?.from)?.friend;
 
   // Draggable window refs y lógica
   const dragRef = useRef<HTMLDivElement>(null);
@@ -58,13 +51,6 @@ export default function CallWindow() {
     };
   }, []);
 
-  useEffect(() => {
-    if (callActive && localStream && localVideoRef.current) {
-      localVideoRef.current.srcObject = localStream;
-    }
-  }, [callActive, localStream, localVideoRef]);
-
-
   function startDrag(e: React.MouseEvent) {
     dragging.current = true;
     dragStart.current = { x: e.clientX, y: e.clientY };
@@ -73,19 +59,12 @@ export default function CallWindow() {
   return (
     <>
       {/* Modal llamada entrante */}
-      {incomingCall && (
+      {callState === 'incoming' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
           <div className="bg-white rounded-lg p-6 shadow-lg w-96 text-center">
             <p className="mb-4 text-lg font-semibold">
-              ¡Te está llamando {caller ? `${caller.firstName} ${caller.lastName}` : "alguien"}!
+              ¡Te está llamando alguien!
             </p>
-            {caller?.image && (
-              <img
-                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/profile/${caller.image}`}
-                alt="Avatar"
-                className="mx-auto mb-4 w-24 h-24 rounded-full object-cover"
-              />
-            )}
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => {
@@ -109,7 +88,7 @@ export default function CallWindow() {
       )}
 
       {/* Ventana llamada activa draggable */}
-      {callActive && (
+      {callState === 'in-call' && (
         <div
           ref={dragRef}
           className="fixed top-4 right-4 z-50 bg-black rounded-lg shadow-lg overflow-hidden cursor-move"

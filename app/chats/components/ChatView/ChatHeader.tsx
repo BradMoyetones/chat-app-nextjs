@@ -7,6 +7,7 @@ import { UserAvatar } from "@/components/UserAvatar"
 import { useOnlineStatus } from "@/hooks/useOnlineStatus"
 import { useAuth } from "@/contexts/AuthContext"
 import { getDisplayName } from "@/lib/utils"
+import { useCall } from "@/contexts/CallContext"
 
 type ChatHeaderProps = {
     conversation: ConversationFull | null,
@@ -15,6 +16,7 @@ type ChatHeaderProps = {
 
 export default function ChatHeader({ conversation, isGroup }: ChatHeaderProps) {
     const {user} = useAuth()
+    const {startCall} = useCall()
     
 
     const otherParticipants = isGroup && conversation ? getDisplayName(conversation, user) : null
@@ -43,7 +45,14 @@ export default function ChatHeader({ conversation, isGroup }: ChatHeaderProps) {
             <div className="space-x-2 flex">
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button size={"icon"} variant={"ghost"}>
+                        <Button 
+                            size={"icon"} 
+                            variant={"ghost"} 
+                            onClick={() => {
+                                if(!otherParticipant?.id) return
+                                startCall(otherParticipant?.id)
+                            }}
+                        >
                             <Video />
                             <span className="sr-only">Video call</span>
                         </Button>
@@ -55,7 +64,14 @@ export default function ChatHeader({ conversation, isGroup }: ChatHeaderProps) {
 
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button size={"icon"} variant={"ghost"}>
+                        <Button 
+                            size={"icon"} 
+                            variant={"ghost"}
+                            onClick={() => {
+                                if(!otherParticipant?.id) return
+                                startCall(otherParticipant?.id)
+                            }}
+                        >
                             <Phone />
                             <span className="sr-only">Phone call</span>
                         </Button>

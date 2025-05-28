@@ -7,17 +7,17 @@ import api from "@/lib/axios"
 import { ContactRequestFull } from "@/types/database"
 
 interface ContactContextProps {
-  contacts: ContactRequestFull[]
-  onlineFriends: number[]
-  receivedRequests: ContactRequestFull[]
-  loadingIds: Set<number>
-  filter: "online" | "pending" | "all"
-  setFilter: React.Dispatch<React.SetStateAction<"online" | "pending" | "all">>
-  searchQuery: string
-  setSearchQuery: React.Dispatch<React.SetStateAction<string>>
-  filteredItems: ContactRequestFull[]
-  acceptRequest: (id: number) => void
-  deleteFriend: (id: number) => void
+    contacts: ContactRequestFull[]
+    onlineFriends: number[]
+    receivedRequests: ContactRequestFull[]
+    loadingIds: Set<number>
+    filter: "online" | "pending" | "all"
+    setFilter: React.Dispatch<React.SetStateAction<"online" | "pending" | "all">>
+    searchQuery: string
+    setSearchQuery: React.Dispatch<React.SetStateAction<string>>
+    filteredItems: ContactRequestFull[]
+    acceptRequest: (id: number) => void
+    deleteFriend: (id: number) => void
 }
 
 const ContactContext = createContext<ContactContextProps | undefined>(undefined)

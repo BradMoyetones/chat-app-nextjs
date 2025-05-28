@@ -1,16 +1,16 @@
 import HeaderList from "@/components/HeaderList";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useCall } from "@/contexts/CallContext";
 import { useContacts } from "@/contexts/ContactContext";
 import { Filter, PhoneCall, Search } from "lucide-react";
 import ContactCard from "../ContactsView/ContactCard";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
+import { useCall } from "@/contexts/CallContext";
 
 export default function CallsList() {
   const { contacts, onlineFriends } = useContacts();
-  const { handleCall } = useCall();
+  const {startCall} = useCall()
 
   return (
     <>
@@ -50,7 +50,7 @@ export default function CallsList() {
                                     size={"sm"}
                                     className='cursor-pointer ml-auto'
                                     onClick={() => {
-                                        handleCall(contact.friend?.id)
+                                      startCall(contact.friend?.id)
                                     }}
                                 >
                                     <PhoneCall />
