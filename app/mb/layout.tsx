@@ -1,3 +1,5 @@
+import CallWindow from "@/components/CallWindow";
+import { CallProvider } from "@/contexts/CallContext";
 import { ContactProvider } from "@/contexts/ContactContext";
 import { ConversationProvider } from "@/contexts/ConversationContext";
 import type { Metadata } from "next";
@@ -17,7 +19,10 @@ export default function RootLayout({
     <div>
       <ContactProvider>
         <ConversationProvider>
-          {children}
+          <CallProvider>
+            {children}
+            <CallWindow />
+          </CallProvider>
         </ConversationProvider>
       </ContactProvider>
     </div>

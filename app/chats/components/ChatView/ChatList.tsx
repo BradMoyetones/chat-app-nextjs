@@ -65,7 +65,7 @@ export default function ChatList() {
         } else {
             return `No conversations found in ${filterLabel}.`;
         }
-};
+    };
 
 
     return (

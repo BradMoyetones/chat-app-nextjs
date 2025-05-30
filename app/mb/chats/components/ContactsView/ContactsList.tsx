@@ -1,16 +1,16 @@
 import HeaderList from '@/components/HeaderList'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Filter, MessageCircleMore, PlusCircle, Search, Trash2 } from 'lucide-react'
+import { Filter, MessageCircleMore, PhoneCall, PlusCircle, Search, Trash2 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { SearchUserModal } from './SearchUserModal'
 import { useState } from 'react'
 import Spinner from '@/components/Spinner'
 import { StartConversation } from './StartConversation'
 import ContactCard from './ContactCard'
 import { useContacts } from '@/contexts/ContactContext'
+import { useCall } from '@/contexts/CallContext'
 
 export default function ContactsList() {
     const { filteredItems, setFilter, searchQuery, setSearchQuery, loadingIds, deleteFriend, onlineFriends, acceptRequest } = useContacts()
@@ -18,6 +18,7 @@ export default function ContactsList() {
     const [openIC, setOpenIC] = useState(false)
 
     const [participantId, setParticipantId] = useState<number | null>(null)
+    const { startCall } = useCall();
 
     return (
         <>
@@ -27,28 +28,14 @@ export default function ContactsList() {
                     <HeaderList>
                         <div className='flex justify-between'>
                             Contacts
-                            
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        size={"icon"}
-                                        variant={"ghost"}
-                                        onClick={() => setOpen((open) => !open)}
-                                    >
-                                        <PlusCircle />
-                                        <span className='sr-only'>Add Friend</span>
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent side="top">
-                                    <p>
-                                        Add Friend 
-                                        Press{" "}
-                                        <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-                                            <span className="text-xs">⌘</span>J
-                                        </kbd>
-                                    </p>
-                                </TooltipContent>
-                            </Tooltip>
+                            <Button
+                                size={"icon"}
+                                variant={"ghost"}
+                                onClick={() => setOpen((open) => !open)}
+                            >
+                                <PlusCircle />
+                                <span className='sr-only'>Add Friend</span>
+                            </Button>
                         </div>
                     </HeaderList>
 
@@ -81,57 +68,54 @@ export default function ContactsList() {
                                             isOnline={true}
                                             text={
                                                 <div>
-                                                    {contact.friend?.firstName} {contact.friend?.lastName}
+                                                    <p className='line-clamp-1'>{contact.friend?.firstName} {contact.friend?.lastName}</p>
                                                     <p className='text-xs text-muted-foreground'>Online</p>
                                                 </div>
                                             }
                                             actions={
                                                 <>
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button
-                                                            variant={"outline"}
-                                                            size={"sm"}
-                                                            className='cursor-pointer ml-auto'
-                                                            onClick={() => {
-                                                                setOpenIC(prev => !prev)
-                                                                setParticipantId(contact.friend?.id)
-                                                            }}
-                                                            disabled={loadingIds.has(contact.id)}
-                                                        >
-                                                            {loadingIds.has(contact.id) ? (
-                                                                <Spinner />
-                                                            ) : (
-                                                                <MessageCircleMore />
-                                                            )}
-                                                            <span className='sr-only'>Start Conversation</span>
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent side="top">
-                                                        <p>Start Conversation</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button
-                                                            variant={"destructive"}
-                                                            size={"sm"}
-                                                            className='cursor-pointer ml-auto'
-                                                            onClick={() => deleteFriend(contact.id)}
-                                                            disabled={loadingIds.has(contact.id)}
-                                                        >
-                                                            {loadingIds.has(contact.id) ? (
-                                                                <Spinner />
-                                                            ) : (
-                                                                <Trash2 />
-                                                            )}
-                                                            <span className='sr-only'>Delete Friend</span>
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent side="top">
-                                                        <p>Delete Friend</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
+                                                    <Button
+                                                        variant={"outline"}
+                                                        size={"sm"}
+                                                        className='cursor-pointer ml-auto'
+                                                        onClick={() => {
+                                                            startCall(contact.friend?.id)
+                                                        }}
+                                                    >
+                                                        <PhoneCall />
+                                                        <span className='sr-only'>Start Call</span>
+                                                    </Button>
+                                                    <Button
+                                                        variant={"outline"}
+                                                        size={"sm"}
+                                                        className='cursor-pointer ml-auto'
+                                                        onClick={() => {
+                                                            setOpenIC(prev => !prev)
+                                                            setParticipantId(contact.friend?.id)
+                                                        }}
+                                                        disabled={loadingIds.has(contact.id)}
+                                                    >
+                                                        {loadingIds.has(contact.id) ? (
+                                                            <Spinner />
+                                                        ) : (
+                                                            <MessageCircleMore />
+                                                        )}
+                                                        <span className='sr-only'>Start Conversation</span>
+                                                    </Button>
+                                                    <Button
+                                                        variant={"destructive"}
+                                                        size={"sm"}
+                                                        className='cursor-pointer ml-auto'
+                                                        onClick={() => deleteFriend(contact.id)}
+                                                        disabled={loadingIds.has(contact.id)}
+                                                    >
+                                                        {loadingIds.has(contact.id) ? (
+                                                            <Spinner />
+                                                        ) : (
+                                                            <Trash2 />
+                                                        )}
+                                                        <span className='sr-only'>Delete Friend</span>
+                                                    </Button>
                                                 </>
                                             }
                                         />
@@ -153,57 +137,56 @@ export default function ContactsList() {
                                             isOnline={isOnline}
                                             text={
                                                 <div>
-                                                    {contact.friend?.firstName} {contact.friend?.lastName}
+                                                    <p className='line-clamp-1'>{contact.friend?.firstName} {contact.friend?.lastName}</p>
                                                     <p className='text-xs text-muted-foreground'>{isOnline ? 'Online' : 'Offline'}</p>
                                                 </div>
                                             }
                                             actions={
                                                 <>
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button
-                                                            variant={"outline"}
-                                                            size={"sm"}
-                                                            className='cursor-pointer ml-auto'
-                                                            onClick={() => {
-                                                                setOpenIC(prev => !prev)
-                                                                setParticipantId(contact.friend?.id)
-                                                            }}
-                                                            disabled={loadingIds.has(contact.id)}
-                                                        >
-                                                            {loadingIds.has(contact.id) ? (
-                                                                <Spinner />
-                                                            ) : (
-                                                                <MessageCircleMore />
-                                                            )}
-                                                            <span className='sr-only'>Start Conversation</span>
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent side="top">
-                                                        <p>Start Conversation</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button
-                                                            variant={"destructive"}
-                                                            size={"sm"}
-                                                            className='cursor-pointer ml-auto'
-                                                            onClick={() => deleteFriend(contact.id)}
-                                                            disabled={loadingIds.has(contact.id)}
-                                                        >
-                                                            {loadingIds.has(contact.id) ? (
-                                                                <Spinner />
-                                                            ) : (
-                                                                <Trash2 />
-                                                            )}
-                                                            <span className='sr-only'>Delete Friend</span>
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent side="top">
-                                                        <p>Delete Friend</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
+                                                {isOnline && (
+                                                    <Button
+                                                        variant={"outline"}
+                                                        size={"sm"}
+                                                        className='cursor-pointer ml-auto'
+                                                        onClick={() => {
+                                                            startCall(contact.friend?.id)
+                                                        }}
+                                                    >
+                                                        <PhoneCall />
+                                                        <span className='sr-only'>Start Call</span>
+                                                    </Button>
+                                                )}
+                                                <Button
+                                                    variant={"outline"}
+                                                    size={"sm"}
+                                                    className='cursor-pointer ml-auto'
+                                                    onClick={() => {
+                                                        setOpenIC(prev => !prev)
+                                                        setParticipantId(contact.friend?.id)
+                                                    }}
+                                                    disabled={loadingIds.has(contact.id)}
+                                                >
+                                                    {loadingIds.has(contact.id) ? (
+                                                        <Spinner />
+                                                    ) : (
+                                                        <MessageCircleMore />
+                                                    )}
+                                                    <span className='sr-only'>Start Conversation</span>
+                                                </Button>
+                                                <Button
+                                                    variant={"destructive"}
+                                                    size={"sm"}
+                                                    className='cursor-pointer ml-auto'
+                                                    onClick={() => deleteFriend(contact.id)}
+                                                    disabled={loadingIds.has(contact.id)}
+                                                >
+                                                    {loadingIds.has(contact.id) ? (
+                                                        <Spinner />
+                                                    ) : (
+                                                        <Trash2 />
+                                                    )}
+                                                    <span className='sr-only'>Delete Friend</span>
+                                                </Button>
                                                 </>
                                             }
                                         />

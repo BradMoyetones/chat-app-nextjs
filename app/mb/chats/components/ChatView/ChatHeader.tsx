@@ -2,12 +2,12 @@
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, Phone, Search, Video } from "lucide-react"
 import { ConversationFull } from "@/types/database"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { UserAvatar } from "@/components/UserAvatar"
 import { useOnlineStatus } from "@/hooks/useOnlineStatus"
 import { useAuth } from "@/contexts/AuthContext"
 import { getDisplayName } from "@/lib/utils"
 import { useViewStore } from "@/hooks/useViewStore"
+import { useCall } from "@/contexts/CallContext"
 
 type ChatHeaderProps = {
     conversation: ConversationFull | null,
@@ -17,7 +17,7 @@ type ChatHeaderProps = {
 export default function ChatHeader({ conversation, isGroup }: ChatHeaderProps) {
     const {user} = useAuth()
     const {setChat, setView} = useViewStore()
-    
+    const {startCall} = useCall()
 
     const otherParticipants = isGroup && conversation ? getDisplayName(conversation, user) : null
     const otherParticipant = !isGroup && conversation ? conversation?.participants.find(p => p.userId !== user?.id)?.user : undefined
@@ -53,41 +53,32 @@ export default function ChatHeader({ conversation, isGroup }: ChatHeaderProps) {
                 </div>
             </div>
             <div className="space-x-2 flex">
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button size={"icon"} variant={"ghost"}>
-                            <Video />
-                            <span className="sr-only">Video call</span>
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                        <p>Video call</p>
-                    </TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button size={"icon"} variant={"ghost"}>
-                            <Phone />
-                            <span className="sr-only">Phone call</span>
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                        <p>Phone call</p>
-                    </TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button size={"icon"} variant={"ghost"}>
-                            <Search />
-                            <span className="sr-only">Search</span>
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                        <p>Search</p>
-                    </TooltipContent>
-                </Tooltip>
+                <Button 
+                    size={"icon"} 
+                    variant={"ghost"}
+                    onClick={() => {
+                        if(!otherParticipant?.id) return
+                        startCall(otherParticipant?.id)
+                    }}
+                >
+                    <Video />
+                    <span className="sr-only">Video call</span>
+                </Button>
+                <Button 
+                    size={"icon"} 
+                    variant={"ghost"}
+                    onClick={() => {
+                        if(!otherParticipant?.id) return
+                        startCall(otherParticipant?.id)
+                    }}
+                >
+                    <Phone />
+                    <span className="sr-only">Phone call</span>
+                </Button>
+                <Button size={"icon"} variant={"ghost"}>
+                    <Search />
+                    <span className="sr-only">Search</span>
+                </Button>
             </div>
         </header>
     )
