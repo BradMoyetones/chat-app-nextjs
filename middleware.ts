@@ -17,7 +17,9 @@ export async function middleware(req: NextRequest) {
     path === '/favicon.svg' ||
     path.startsWith('/api/public') ||
     path.startsWith('/background_1.png') ||
-    path.startsWith('/themes')
+    path.startsWith('/themes') ||
+    path.startsWith('/placeholder')
+
   ) {
     return NextResponse.next()
   }

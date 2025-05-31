@@ -32,13 +32,16 @@ export interface Message {
 };
 
 export interface MessageFull extends Message {
-    reads: MessageRead[]
+    reads: MessageRead[];
+    attachments: Attachment[]
 };
 export interface Attachment {
     id: number;
     messageId: number;
     userId: number;
-    url: string;
+    originalName: string;
+    filename: string;
+    size: number;
     type: string;
     uploadedAt: string;
 };
