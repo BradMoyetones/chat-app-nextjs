@@ -1,4 +1,3 @@
-'use client'
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -6,8 +5,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import { useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { MobileRedirect } from "@/components/MobileRedirect";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,20 +30,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const router = useRouter();
-  const pathname = usePathname();
-
-  useEffect(() => {
-    const isMobileDevice = () => {
-      const byScreen = window.matchMedia("(pointer: coarse)").matches;
-      const byUserAgent = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      return byScreen || byUserAgent;
-    };
-
-    if (isMobileDevice() && !pathname.startsWith('/mb')) {
-      router.replace('/mb/chats');
-    }
-  }, [pathname, router]);
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -59,6 +43,8 @@ export default function RootLayout({
         >
           <TooltipProvider delayDuration={0}>
             <AuthProvider>
+              <MobileRedirect />
+              
               {children}
             </AuthProvider>
           </TooltipProvider>
