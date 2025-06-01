@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Loader from "@/components/Loader";
 import { User } from "@/types/database";
 import socket from "@/lib/socket";
+import { useIsTrulyMobile } from "@/hooks/useIsTrulyMobile";
 
 interface AuthContextProps {
     user: User | null
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true)
     const router = useRouter()
     const pathname = usePathname()
+    const isMobile = useIsTrulyMobile()
 
     const logOut = async() => {
         try {
@@ -37,7 +39,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
                 // 👇 Si el usuario está en login y ya tiene token válido, redirigimos
                 if (pathname === "/login" || pathname === "/" || pathname === "/register") {
-                    router.replace("/chats") // Esto forza navegación real => se ejecuta middleware
+                    if(isMobile) return router.replace("/mb/chats")
+                    if(!isMobile) return router.replace("/chats")
                 }
 
             } catch {
@@ -48,7 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         fetchUser()
-    }, [pathname, router])
+    }, [pathname, router, isMobile])
 
     useEffect(() => {
         if (user) {

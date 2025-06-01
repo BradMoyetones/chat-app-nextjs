@@ -1,9 +1,11 @@
 // hooks/useOnlineStatus.ts
 import { useEffect, useState } from "react"
 import socket from "@/lib/socket"
+import { useAuth } from "@/contexts/AuthContext"
 
 export function useOnlineStatus(userId?: number | null) {
     const [isOnline, setIsOnline] = useState(false)
+    const {user} = useAuth()
 
     useEffect(() => {
         if (!userId) return
@@ -29,7 +31,7 @@ export function useOnlineStatus(userId?: number | null) {
             socket.off("usuario:online", handleOnline)
             socket.off("usuario:offline", handleOffline)
         }
-    }, [userId])
+    }, [userId, user?.id])
 
     return isOnline
 }
