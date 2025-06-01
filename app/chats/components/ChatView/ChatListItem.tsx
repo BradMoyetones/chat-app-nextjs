@@ -23,6 +23,8 @@ export default function ChatListItem({ conversation, isActive, onClick, isTyping
 
     const isOnline = useOnlineStatus(otherParticipant?.id)
 
+    const message = lastMessage?.content?.trim() || lastMessage?.attachments[0].originalName || "No messages"
+    
     return (
         <div
             key={id + "-card-chat-list"}
@@ -44,8 +46,8 @@ export default function ChatListItem({ conversation, isActive, onClick, isTyping
                 <h3 className="font-semibold line-clamp-1">
                     {conversation.isGroup ? conversation.title : getDisplayName(conversation, user)}
                 </h3>
-                <p className="text-muted-foreground line-clamp-1">
-                    {isTyping ? <span className="text-sm text-gray-500">Escribiendo...</span> : (lastMessage?.content || "No messages")}
+                <p className="text-muted-foreground line-clamp-1 truncate max-w-44">
+                    {isTyping ? <span className="text-sm text-gray-500">Escribiendo...</span> : message}
                 </p>
             </div>
             <div className="ml-2 flex flex-col h-full mb-auto">

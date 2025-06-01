@@ -18,6 +18,8 @@ import data from '@emoji-mart/data'
 import { useTheme } from "next-themes"
 import { StartConversation } from "../ContactsView/StartConversation"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
+import axios from "axios"
 
 interface PendingAttachment {
     file: File
@@ -212,8 +214,24 @@ export default function ChatView() {
 
             setMessageContent("")
             setPendingAttachments([])
-        } catch (err) {
-            console.error("Error al enviar el mensaje", err)
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                const data = error.response.data
+                const rawError = data.error
+
+                // 🔹 Si es un mensaje plano
+                if (typeof rawError === "string") {
+                    toast.error(rawError)
+                    return
+                }
+
+                // 🔹 Si es un objeto con message
+                if (typeof rawError === "object" && rawError?.message) {
+                    toast.error(rawError.message)
+                    return
+                }
+            }
+            toast.error("Something went wrong while sending the request.")
         }
     }
 
@@ -377,8 +395,8 @@ export default function ChatView() {
             onDrop={handleDrop}
         >
             {isDragging && (
-                <div className="fixed inset-0 bg-black/50 text-white z-50 flex items-center justify-center text-xl pointer-events-none">
-                    Suelta para subir archivos
+                <div className="absolute inset-0 bg-black/50 text-white z-50 flex items-center justify-center text-xl pointer-events-none">
+                    Draw and drop you files here
                 </div>
             )}
             <div className="absolute inset-0 bg-[url('/background_1.png')] dark:flex hidden opacity-10 pointer-events-none z-0" />
@@ -432,6 +450,7 @@ export default function ChatView() {
                                                         size="sm"
                                                         variant="destructive"
                                                         className="absolute -top-2 -right-2 w-6 h-6 rounded-full p-0"
+                                                        type="button"
                                                         onClick={() => removePendingAttachment(index)}
                                                     >
                                                         <X className="w-3 h-3" />

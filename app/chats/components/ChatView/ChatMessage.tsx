@@ -27,6 +27,7 @@ export function ChatMessage({ message, currentUser, participants, isLastInSequen
     const isOnline = useOnlineStatus(sender?.userId)
   
     const isImage = (type: string) => type.startsWith("image/")
+    const isVideo = (type: string) => type.startsWith("video/")
         
     const getFileIcon = (type: string) => {
         if (type.startsWith("image/")) return <ImageIcon className="w-4 h-4 shrink-0" />
@@ -58,14 +59,14 @@ export function ChatMessage({ message, currentUser, participants, isLastInSequen
                             isLastInSequence ? (isMe ? "rounded-2xl rounded-br-none" : "rounded-2xl rounded-bl-none") : "rounded-2xl",
                         )}
                     >
-                        {message.content}
-
                         {isImage(attachment.type) ? (
                             <img
                                 src={`${process.env.NEXT_PUBLIC_API_URL}/api/attachments/${attachment.filename}` || "/placeholder.svg"}
                                 alt="Attachment"
                                 className="max-w-[250px] rounded object-cover"
                             />
+                        ) : isVideo(attachment.type) ? (
+                            <video src={`${process.env.NEXT_PUBLIC_API_URL}/api/attachments/${attachment.filename}` || "/placeholder.svg"} controls className="rounded"></video>
                         ) : (
                             <div className="flex items-center gap-2 p-2 bg-secondary-foreground rounded">
                                 {getFileIcon(attachment.type)}
@@ -80,13 +81,18 @@ export function ChatMessage({ message, currentUser, participants, isLastInSequen
                                     </TooltipContent>
                                 </Tooltip>
                                 
-                                <Button 
-                                    size="sm" 
-                                    variant="ghost"
-                                    onClick={() => downloadFile(attachment.filename, attachment.originalName)}
-                                >
-                                    <Download className="w-4 h-4" />
-                                </Button>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button 
+                                            size="sm" 
+                                            variant="ghost"
+                                            onClick={() => downloadFile(attachment.filename, attachment.originalName)}
+                                        >
+                                            <Download className="w-4 h-4" />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top">Download</TooltipContent>
+                                </Tooltip>
                             </div>
                         )}
 
@@ -141,7 +147,9 @@ export function ChatMessage({ message, currentUser, participants, isLastInSequen
                             isLastInSequence ? (isMe ? "rounded-2xl rounded-br-none" : "rounded-2xl rounded-bl-none") : "rounded-2xl",
                         )}
                     >
-                        {message.content}
+                        <p>
+                            {message.content}
+                        </p>
 
                         <div 
                             className={`flex w-fit items-center text-xs mt-1 
