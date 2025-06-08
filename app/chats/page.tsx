@@ -7,6 +7,8 @@ import { lazy, Suspense, useEffect } from 'react'
 import socket from '@/lib/socket'
 import Loader from '@/components/Loader'
 import Sidebar from './components/Sidebar'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 
 const SettingsList = lazy(() => import('./components/SettingsView/SettingsList'))
 const ProfileList = lazy(() => import('./components/ProfileView/ProfileList'))
@@ -15,6 +17,14 @@ const CallsList = lazy(() => import('./components/CallsView/CallsList'))
 
 export default function Home() {
   const {type} = useViewStore()
+
+  const {user} = useAuth()
+  const router = useRouter()
+  
+  if(!user){
+    router.replace("/login")
+  }
+
   useEffect(() => {
     if (!socket.connected) {
       socket.connect()

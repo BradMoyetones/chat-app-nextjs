@@ -7,7 +7,6 @@ import { ConversationFull, MessageFull, MessageRead } from "@/types/database"
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { File, ImageIcon, Plus, Send, Smile, X } from "lucide-react"
-import ChatMessages from "./ChatMessages"
 import ChatHeader from "./ChatHeader"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useConversations } from "@/contexts/ConversationContext"
@@ -20,6 +19,8 @@ import { StartConversation } from "../ContactsView/StartConversation"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import axios from "axios"
+import { getFileIcon, isImage } from "@/lib/utils"
+import ChatMessages from "@/components/messages/ChatMessages"
 
 interface PendingAttachment {
     file: File
@@ -303,13 +304,6 @@ export default function ChatView() {
 
     const removePendingAttachment = (index: number) => {
         setPendingAttachments((prev) => prev.filter((_, i) => i !== index))
-    }
-
-    const isImage = (type: string) => type.startsWith("image/")
-    
-    const getFileIcon = (type: string) => {
-        if (type.startsWith("image/")) return <ImageIcon className="w-4 h-4" />
-        return <File className="w-4 h-4" />
     }
 
     const handleFiles = (files: File[]) => {

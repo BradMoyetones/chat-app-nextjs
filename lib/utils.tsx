@@ -3,6 +3,7 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { format, isToday, isYesterday, differenceInDays, parseISO } from 'date-fns'
 import api from "./axios"
+import { File, ImageIcon } from "lucide-react"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -82,3 +83,12 @@ export const downloadFile = async (filename: string, originalName: string) => {
     console.error("Error downloading file:", error)
   }
 }
+
+export const isImage = (type: string) => type.startsWith("image/")
+    
+export const getFileIcon = (type: string) => {
+  if (type.startsWith("image/")) return <ImageIcon className="w-4 h-4" />
+  return <File className="w-4 h-4" />
+}
+
+export const isVideo = (type: string) => type.startsWith("video/")

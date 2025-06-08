@@ -8,6 +8,8 @@ import { lazy, Suspense, useEffect } from "react"
 import socket from "@/lib/socket"
 import ChatList from "./components/ChatView/ChatList"
 import Loader from "@/components/Loader"
+import { useAuth } from "@/contexts/AuthContext"
+import { useRouter } from "next/navigation"
 
 const SettingsList = lazy(() => import('./components/SettingsView/SettingsList'))
 const ProfileList = lazy(() => import('./components/ProfileView/ProfileList'))
@@ -17,6 +19,12 @@ const ThemeView = lazy(() => import('./components/ThemeView/ThemeView'))
 
 export default function MobileLayout() {
     const { type, chatId } = useViewStore()
+    const {user} = useAuth()
+    const router = useRouter()
+    
+    if(!user){
+        router.replace("/login")
+    }
 
     useEffect(() => {
         if (!socket.connected) {
