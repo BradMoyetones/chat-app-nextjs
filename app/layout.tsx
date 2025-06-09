@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   title: "Chat app - Brad",
   description: "An app for chating with your friends.",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/icon-dark.png",
   },
 };
 
